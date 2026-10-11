@@ -1,0 +1,11 @@
+target/
+node_modules/
+preview/
+frontend/
+scripts/
+config/
+.git/
+.idea/
+.vscode/
+.claude/
+*.md

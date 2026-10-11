@@ -429,3 +429,19 @@ $row-divider: 2px solid c(border-strong);
 		background: c(primary-soft);
 	}
 }
+
+// 7連勤以上（前半・後半をまたいで通しで数える）。上段のマスを赤く、最大連勤の欄は赤字に
+.sheet td.is-streak {
+	background: c(error-bg);
+	box-shadow: inset 0 -3px 0 c(danger);
+}
+
+.sheet-count.is-streak {
+	color: c(danger);
+	font-weight: 700;
+}
+
+// 後半（1日）の左に区切り線
+.sheet .half-start {
+	border-left: 3px solid c(muted);
+}

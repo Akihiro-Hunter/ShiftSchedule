@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.shiftschedule.domain.Half;
 import com.shiftschedule.domain.Period;
 import com.shiftschedule.domain.RequestStatus;
 
@@ -15,10 +16,50 @@ import com.shiftschedule.domain.RequestStatus;
  * @param plannedCounts 日ごとの予定人数（dates と同じ順）
  */
 public record ShiftSheet(Period period, List<LocalDate> dates, List<Row> rows, List<Integer> plannedCounts,
-		boolean confirmed, LocalDateTime confirmedAt) {
+		HalfStatus first, HalfStatus second) {
+
+	/** 半月の確定状態 */
+	public record HalfStatus(boolean confirmed, LocalDateTime confirmedAt) {
+	}
 
 	public static final String DAY_OFF_MARK = "公";
 	public static final String REQUESTED_OFF_MARK = "希";
+
+	public HalfStatus status(Half half) {
+		return half == Half.FIRST ? first : second;
+	}
+
+	/** どちらかの半月が確定している（ユーザーに公開する内容がある） */
+	public boolean anyConfirmed() {
+		return first.confirmed() || second.confirmed();
+	}
+
+	/** 確定済みの半月だけに絞った表（ユーザーに見せる用） */
+	public ShiftSheet onlyConfirmed() {
+		List<Integer> keep = new ArrayList<>();
+		for (int i = 0; i < dates.size(); i++) {
+			if (status(period.halfOf(dates.get(i))).confirmed()) {
+				keep.add(i);
+			}
+		}
+		List<Row> keptRows = rows.stream().map(row -> row.only(keep)).toList();
+		return new ShiftSheet(period, keep.stream().map(dates::get).toList(), keptRows,
+				plannedCounts.isEmpty() ? plannedCounts : keep.stream().map(plannedCounts::get).toList(), first, second);
+	}
+
+	/** 指定した半月の中に、7連勤以上の日がある人の氏名 */
+	public List<String> overLimitNames(Half half) {
+		List<String> names = new ArrayList<>();
+		for (Row row : rows) {
+			for (int i = 0; i < dates.size(); i++) {
+				if (period.halfOf(dates.get(i)) == half && row.isOverLimit(i)) {
+					names.add(row.name());
+					break;
+				}
+			}
+		}
+		return names;
+	}
 
 	/** 日ごとの出勤人数（上段が「公」でない人の数。dates と同じ順） */
 	public List<Integer> workerCounts() {
@@ -42,9 +83,31 @@ public record ShiftSheet(Period period, List<LocalDate> dates, List<Row> rows, L
 	 * @param requestNote 次回勤務表作成の備考
 	 * @param requestUpdatedAt 次回勤務表作成を最後に保存した日時（未保存なら null）
 	 * @param editLocked 管理者が鍵をかけた（この人の勤怠は変更しない）
+	 * @param carryIn 表の先頭の日の直前から続いている出勤日数（前の期にまたがる連勤の判定用）
 	 */
 	public record Row(Long accountId, String userNumber, String name, String tasksLabel, List<Cell> cells,
-			String requestNote, LocalDateTime requestUpdatedAt, boolean editLocked) {
+			String requestNote, LocalDateTime requestUpdatedAt, boolean editLocked, int carryIn) {
+
+		/** 各日が属する連勤の長さ（休みの日は 0）。半月の区切りに関係なく通して数える */
+		public List<Integer> runLengths() {
+			return ConsecutiveWork.runLengths(carryIn, cells.stream().map(cell -> !cell.dayOff()).toList());
+		}
+
+		/** 期間内で一番長い連勤 */
+		public int maxRun() {
+			return runLengths().stream().mapToInt(Integer::intValue).max().orElse(0);
+		}
+
+		/** i 番目の日が 7連勤以上の中にあるか */
+		public boolean isOverLimit(int i) {
+			return runLengths().get(i) > ConsecutiveWork.MAX_DAYS;
+		}
+
+		/** 指定した位置の日だけに絞った行（ユーザー向け。連勤の判定には使わない） */
+		Row only(List<Integer> indexes) {
+			return new Row(accountId, userNumber, name, tasksLabel, indexes.stream().map(cells::get).toList(),
+					requestNote, requestUpdatedAt, editLocked, 0);
+		}
 
 		/** 出勤回数（上段が「公」でない日数） */
 		public int workDays() {

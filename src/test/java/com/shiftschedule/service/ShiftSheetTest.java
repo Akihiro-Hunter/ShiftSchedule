@@ -16,7 +16,7 @@ class ShiftSheetTest {
 		List<ShiftSheet.Cell> cells = period.dates().stream()
 				.map(d -> new ShiftSheet.Cell(d, null, false, "", false))
 				.toList();
-		return new ShiftSheet.Row(1L, "10000001", "テスト", "", cells, null, null, false);
+		return new ShiftSheet.Row(1L, "10000001", "テスト", "", cells, null, null, false, 0);
 	}
 
 	@Test

@@ -148,6 +148,30 @@
     const totals = Array.from(form.querySelectorAll("[data-worker-count]"));
     const users = Array.from(form.querySelectorAll("[data-sortable-item]"));
     const isOff = (cell) => cell.querySelector(".mark-locked") !== null || (cell.querySelector('input[type="checkbox"]')?.checked ?? false);
+    const maxRunLimit = Number(form.dataset.maxRun ?? "6");
+    const updateStreaks = (user) => {
+      const cells = Array.from(user.querySelectorAll(".sheet-top [data-day]"));
+      const lengths = new Array(cells.length).fill(0);
+      let i = 0;
+      while (i < cells.length) {
+        if (isOff(cells[i])) {
+          i++;
+          continue;
+        }
+        let end = i;
+        while (end < cells.length && !isOff(cells[end])) end++;
+        const length = end - i + (i === 0 ? Number(user.dataset.carryIn ?? "0") : 0);
+        for (let j = i; j < end; j++) lengths[j] = length;
+        i = end;
+      }
+      cells.forEach((cell, index) => cell.classList.toggle("is-streak", lengths[index] > maxRunLimit));
+      const max = Math.max(0, ...lengths);
+      const maxCell = user.querySelector("[data-max-run]");
+      if (maxCell) {
+        maxCell.textContent = String(max);
+        maxCell.classList.toggle("is-streak", max > maxRunLimit);
+      }
+    };
     const update = () => {
       for (const total of totals) {
         const cells = form.querySelectorAll(`[data-day="${total.dataset.workerCount}"]`);
@@ -160,6 +184,7 @@
         const offDays = user.querySelector("[data-off-days]");
         if (work) work.textContent = String(cells.length - off);
         if (offDays) offDays.textContent = String(off);
+        updateStreaks(user);
       }
     };
     form.addEventListener("change", (event) => {

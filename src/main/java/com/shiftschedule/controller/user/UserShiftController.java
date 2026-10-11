@@ -38,15 +38,16 @@ public class UserShiftController {
 	public String show(@RequestParam(required = false) String p, @AuthenticationPrincipal LoginAccount login,
 			Model model) {
 		Period current = Period.current();
-		boolean nextConfirmed = shiftService.isConfirmed(current.next());
+		boolean nextConfirmed = shiftService.isAnyConfirmed(current.next());
 		boolean showNext = "next".equals(p) && nextConfirmed;
 		Period period = showNext ? current.next() : current;
 
 		model.addAttribute("period", period);
 		model.addAttribute("showNext", showNext);
 		model.addAttribute("nextConfirmed", nextConfirmed);
-		if (shiftService.isConfirmed(period)) {
-			ShiftSheet sheet = shiftService.buildSheet(period);
+		if (shiftService.isAnyConfirmed(period)) {
+			// 確定済みの半月だけを見せる
+			ShiftSheet sheet = shiftService.buildSheet(period).onlyConfirmed();
 			model.addAttribute("sheet", sheet);
 			model.addAttribute("myRow", sheet.rows().stream()
 					.filter(row -> row.accountId().equals(login.getId()))
@@ -60,10 +61,10 @@ public class UserShiftController {
 	public ResponseEntity<byte[]> pdf(@RequestParam(required = false) String p,
 			@AuthenticationPrincipal LoginAccount login) {
 		Period period = "next".equals(p) ? Period.current().next() : Period.current();
-		if (!shiftService.isConfirmed(period)) {
+		if (!shiftService.isAnyConfirmed(period)) {
 			return ResponseEntity.notFound().build();
 		}
-		ShiftSheet sheet = shiftService.buildSheet(period);
+		ShiftSheet sheet = shiftService.buildSheet(period).onlyConfirmed();
 		String fileName = "朝アシシフト_" + FILE_DATE.format(period.start()) + "-" + FILE_DATE.format(period.end())
 				+ ".pdf";
 		return ResponseEntity.ok()

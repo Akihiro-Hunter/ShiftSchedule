@@ -11,6 +11,11 @@
 		color: c(ok-text);
 	}
 
+	&-warn {
+		background: c(warn-bg);
+		color: c(warn-text);
+	}
+
 	&-error {
 		background: c(error-bg);
 		color: c(error-text);

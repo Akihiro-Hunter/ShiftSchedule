@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.shiftschedule.domain.Account;
 import com.shiftschedule.domain.DailyPlan;
+import com.shiftschedule.domain.Half;
 import com.shiftschedule.domain.Period;
 import com.shiftschedule.domain.RequestStatus;
 import com.shiftschedule.domain.Role;
@@ -36,6 +37,9 @@ import com.shiftschedule.repository.ShiftRequestRepository;
 @Transactional
 public class ShiftService {
 
+	/** 前の期から続く連勤を数えるために遡る日数 */
+	private static final int CARRY_IN_LOOKBACK_DAYS = 14;
+
 	private final AccountRepository accounts;
 	private final ShiftRequestRepository requests;
 	private final ShiftRequestNoteRepository requestNotes;
@@ -56,9 +60,16 @@ public class ShiftService {
 		this.locks = locks;
 	}
 
+	/** 半月が確定しているか */
 	@Transactional(readOnly = true)
-	public boolean isConfirmed(Period period) {
-		return periods.findById(period.start()).map(ShiftPeriod::isConfirmed).orElse(false);
+	public boolean isConfirmed(Period period, Half half) {
+		return periods.findById(period.start(half)).map(ShiftPeriod::isConfirmed).orElse(false);
+	}
+
+	/** どちらかの半月が確定しているか（ユーザーに公開する内容があるか） */
+	@Transactional(readOnly = true)
+	public boolean isAnyConfirmed(Period period) {
+		return isConfirmed(period, Half.FIRST) || isConfirmed(period, Half.SECOND);
 	}
 
 	/** 期間の朝アシシフトを組み立てる */
@@ -75,6 +86,7 @@ public class ShiftService {
 		}
 
 		Set<Long> lockedIds = lockedAccountIds(period);
+		Map<Long, Integer> carryIns = carryIns(period);
 
 		List<LocalDate> dates = period.dates();
 		List<ShiftSheet.Row> rows = new ArrayList<>();
@@ -96,7 +108,7 @@ public class ShiftService {
 			ShiftRequestNote note = noteMap.get(user.getId());
 			rows.add(new ShiftSheet.Row(user.getId(), user.getUserNumber(), user.getName(), user.getTasksLabel(), cells,
 					note == null ? null : note.getNote(), note == null ? null : note.getUpdatedAt(),
-					lockedIds.contains(user.getId())));
+					lockedIds.contains(user.getId()), carryIns.getOrDefault(user.getId(), 0)));
 		}
 
 		Map<LocalDate, Integer> planMap = new HashMap<>();
@@ -108,9 +120,44 @@ public class ShiftService {
 			plannedCounts.add(planMap.getOrDefault(date, DailyPlan.defaultCount(date)));
 		}
 
-		ShiftPeriod status = periods.findById(period.start()).orElse(null);
-		return new ShiftSheet(period, dates, rows, plannedCounts, status != null && status.isConfirmed(),
+		return new ShiftSheet(period, dates, rows, plannedCounts, halfStatus(period, Half.FIRST),
+				halfStatus(period, Half.SECOND));
+	}
+
+	private ShiftSheet.HalfStatus halfStatus(Period period, Half half) {
+		ShiftPeriod status = periods.findById(period.start(half)).orElse(null);
+		return new ShiftSheet.HalfStatus(status != null && status.isConfirmed(),
 				status == null ? null : status.getConfirmedAt());
+	}
+
+	/**
+	 * 期の初日の直前から続いている出勤日数（前の期にまたがる連勤の判定用）。
+	 * 休み（希望の休み・「公」）の入っていない日は出勤とみなす。
+	 */
+	private Map<Long, Integer> carryIns(Period period) {
+		LocalDate from = period.start().minusDays(CARRY_IN_LOOKBACK_DAYS);
+		LocalDate to = period.start().minusDays(1);
+		Map<Long, Set<LocalDate>> offDays = new HashMap<>();
+		for (ShiftRequest r : requests.findByWorkDateBetween(from, to)) {
+			if (r.getStatus() == RequestStatus.OFF) {
+				offDays.computeIfAbsent(r.getAccount().getId(), k -> new HashSet<>()).add(r.getWorkDate());
+			}
+		}
+		for (ShiftEntry e : entries.findByWorkDateBetween(from, to)) {
+			if (e.isDayOff()) {
+				offDays.computeIfAbsent(e.getAccount().getId(), k -> new HashSet<>()).add(e.getWorkDate());
+			}
+		}
+		Map<Long, Integer> result = new HashMap<>();
+		for (Account user : accounts.findByRoleIn(Role.STAFF)) {
+			Set<LocalDate> off = offDays.getOrDefault(user.getId(), Set.of());
+			int days = 0;
+			while (days < CARRY_IN_LOOKBACK_DAYS && !off.contains(to.minusDays(days))) {
+				days++;
+			}
+			result.put(user.getId(), days);
+		}
+		return result;
 	}
 
 	/**
@@ -255,9 +302,10 @@ public class ShiftService {
 		}
 	}
 
-	/** 確定（ユーザーに公開）または確定取消 */
-	public void setConfirmed(Period period, boolean confirmed) {
-		ShiftPeriod status = periods.findById(period.start()).orElseGet(() -> new ShiftPeriod(period.start()));
+	/** 半月の確定（ユーザーに公開）または確定取消 */
+	public void setConfirmed(Period period, Half half, boolean confirmed) {
+		LocalDate key = period.start(half);
+		ShiftPeriod status = periods.findById(key).orElseGet(() -> new ShiftPeriod(key));
 		status.setConfirmed(confirmed);
 		status.setConfirmedAt(confirmed ? LocalDateTime.now(Period.ZONE) : null);
 		periods.save(status);

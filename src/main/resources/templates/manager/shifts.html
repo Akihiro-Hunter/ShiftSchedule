@@ -20,10 +20,15 @@
 		<div th:replace="~{fragments/layout :: messages}"></div>
 
 		<div class="shift-status">
-			<span th:if="${sheet.confirmed}" class="badge badge-ok">確定済み（ユーザーに公開中）</span>
-			<span th:if="${sheet.confirmed}" class="muted"
-				th:text="${#temporals.format(sheet.confirmedAt, 'M/d HH:mm')} + ' 確定'"></span>
-			<span th:unless="${sheet.confirmed}" class="badge badge-warn">未確定（ユーザーには非公開）</span>
+			<!-- 確定は前半（16日〜月末）・後半（1日〜15日）ごと。確定した半月だけユーザーに公開される -->
+			<th:block th:each="half : ${halves}" th:with="status=${sheet.status(half)}">
+				<span th:if="${status.confirmed}" class="badge badge-ok"
+					th:text="${half.label} + '：確定済み（ユーザーに公開中）'"></span>
+				<span th:if="${status.confirmed}" class="muted"
+					th:text="${#temporals.format(status.confirmedAt, 'M/d HH:mm')} + ' 確定'"></span>
+				<span th:unless="${status.confirmed}" class="badge badge-warn"
+					th:text="${half.label} + '：未確定（ユーザーには非公開）'"></span>
+			</th:block>
 			<span class="legend">
 				ユーザーの希望：
 				<span class="legend-item req-available">出勤可能</span>
@@ -36,9 +41,12 @@
 				th:text="${noteMaxLength}"></span>文字まで）。<br>
 			氏名の左の <span class="drag-handle-sample">⠿</span> をドラッグ（または ↑↓ キー）すると並び順を変えられます（保存で反映され、ユーザーの勤務表確認・CSV・PDFも同じ順になります）。<br>
 			一番下の「予定人数」は日ごとに変更できます（保存で反映）。<br>
-			ユーザー番号の右の鍵を押すと、その人の勤怠はこの画面で変更できなくなります（名前と番号が赤色。保存で反映）。</p>
+			ユーザー番号の右の鍵を押すと、その人の勤怠はこの画面で変更できなくなります（名前と番号が赤色。保存で反映）。<br>
+			前半（16日〜月末）と後半（1日〜15日）は別々に確定できます。連勤は半月の区切りに関係なく通して数え、<span
+				th:text="${maxRun + 1}"></span>連勤以上は赤く表示します（確定は止めません）。</p>
 
-		<form th:action="@{/manager/shifts}" method="post" id="shift-form" data-dirty-guard data-worker-total>
+		<form th:action="@{/manager/shifts}" method="post" id="shift-form" data-dirty-guard data-worker-total
+			th:attr="data-max-run=${maxRun}">
 			<input type="hidden" name="start" th:value="${period.start()}">
 
 			<div class="sheet-wrap">
@@ -46,17 +54,20 @@
 					<thead>
 						<tr>
 							<th class="sheet-name">氏名</th>
-							<th th:each="d : ${sheet.dates()}" class="sheet-date" th:classappend="${@dateLabels.weekClass(d)}">
+							<th th:each="d : ${sheet.dates()}" class="sheet-date"
+								th:classappend="${@dateLabels.weekClass(d)} + (${d == secondStart} ? ' half-start' : '')">
 								<span th:text="${d.dayOfMonth}"></span><br><small th:text="${@dateLabels.week(d)}"></small>
 							</th>
 							<th class="sheet-count">出勤<br>回数</th>
 							<th class="sheet-count">公年<br>休数</th>
+							<th class="sheet-count">最大<br>連勤</th>
 							<th class="sheet-remark">備考（ユーザー入力）</th>
 						</tr>
 					</thead>
 					<!-- 1ユーザー（上段・下段）を1つの tbody にまとめ、tbody ごとにドラッグで並び替える -->
 					<tbody th:each="row : ${sheet.rows()}" class="sheet-user" th:classappend="${row.editLocked()} ? 'is-locked'"
-						data-sortable-item>
+						data-sortable-item
+						th:attr="data-carry-in=${row.carryIn()}">
 						<tr class="sheet-top">
 							<th class="sheet-name" rowspan="2">
 								<div class="sheet-name-inner">
@@ -88,8 +99,8 @@
 								<input type="hidden" name="order" th:value="${row.accountId()}">
 								<input type="hidden" th:name="'lock_' + ${row.accountId()}" th:value="${row.editLocked()}" data-lock-input>
 							</th>
-							<td th:each="cell : ${row.cells()}" th:data-day="${cell.date()}"
-								th:class="'req-' + (${cell.request()} ? ${#strings.toLowerCase(cell.request().name())} : 'none')"
+							<td th:each="cell, cs : ${row.cells()}" th:data-day="${cell.date()}"
+								th:class="'req-' + (${cell.request()} ? ${#strings.toLowerCase(cell.request().name())} : 'none') + (${cell.date() == secondStart} ? ' half-start' : '') + (${row.isOverLimit(cs.index)} ? ' is-streak' : '')"
 								th:title="${cell.request()} ? ${cell.request().label} : '未入力'">
 								<span th:if="${cell.locked()}" class="mark mark-locked">公</span>
 								<label th:unless="${cell.locked()}" class="off-toggle">
@@ -100,6 +111,8 @@
 							</td>
 							<td class="sheet-count" rowspan="2" data-work-days th:text="${row.workDays()}"></td>
 							<td class="sheet-count" rowspan="2" data-off-days th:text="${row.dayOffDays()}"></td>
+							<td class="sheet-count" rowspan="2" data-max-run th:text="${row.maxRun()}"
+								th:classappend="${row.maxRun() > maxRun} ? 'is-streak'"></td>
 							<td class="sheet-remark" rowspan="2">
 								<div class="remark-text" th:text="${row.requestNote()}"></div>
 								<small class="muted" th:if="${row.requestUpdatedAt()}"
@@ -109,7 +122,7 @@
 						</tr>
 						<tr class="sheet-bottom">
 							<td th:each="cell : ${row.cells()}"
-								th:class="'req-' + (${cell.request()} ? ${#strings.toLowerCase(cell.request().name())} : 'none')">
+								th:class="'req-' + (${cell.request()} ? ${#strings.toLowerCase(cell.request().name())} : 'none') + (${cell.date() == secondStart} ? ' half-start' : '')">
 								<span th:if="${cell.locked()}" class="mark mark-locked">希</span>
 								<input th:unless="${cell.locked()}" type="text" class="note-input"
 									th:name="'note_' + ${cell.key(row.accountId())}" th:value="${cell.bottom()}"
@@ -119,7 +132,7 @@
 					</tbody>
 					<tbody th:if="${#lists.isEmpty(sheet.rows())}">
 						<tr>
-							<td th:colspan="${sheet.dates().size() + 4}" class="empty">アルバイト・パートのユーザーが登録されていません</td>
+							<td th:colspan="${sheet.dates().size() + 5}" class="empty">アルバイト・パートのユーザーが登録されていません</td>
 						</tr>
 					</tbody>
 					<!-- 日ごとの合計。出勤人数は「公」の切り替えに合わせて画面上でも数え直す -->
@@ -128,6 +141,7 @@
 							<th class="sheet-name">出勤人数</th>
 							<td th:each="d, s : ${sheet.dates()}" th:data-worker-count="${d}"
 								th:text="${workers[s.index]}"></td>
+							<td class="sheet-count"></td>
 							<td class="sheet-count"></td>
 							<td class="sheet-count"></td>
 							<td class="sheet-remark"></td>
@@ -141,6 +155,7 @@
 							</td>
 							<td class="sheet-count"></td>
 							<td class="sheet-count"></td>
+							<td class="sheet-count"></td>
 							<td class="sheet-remark muted">既定は15人（月・火は13人）</td>
 						</tr>
 					</tfoot>
@@ -148,12 +163,18 @@
 			</div>
 
 			<div class="form-actions">
-				<button th:unless="${sheet.confirmed}" type="submit" name="action" value="save" class="btn">途中保存</button>
-				<button th:unless="${sheet.confirmed}" type="submit" name="action" value="confirm" class="btn btn-primary"
-					data-confirm="保存して確定します。確定するとユーザーの勤務表確認に表示されます。よろしいですか？">保存して確定</button>
-				<button th:if="${sheet.confirmed}" type="submit" name="action" value="save" class="btn btn-primary">保存（公開中の内容を更新）</button>
-				<button th:if="${sheet.confirmed}" type="submit" name="action" value="unconfirm" class="btn btn-danger"
-					data-confirm="確定を取り消すと、ユーザーには表示されなくなります。よろしいですか？">確定取消</button>
+				<button type="submit" name="action" value="save" class="btn"
+					th:classappend="${sheet.anyConfirmed()} ? 'btn-primary'">保存</button>
+				<th:block th:each="half : ${halves}">
+					<button th:unless="${sheet.status(half).confirmed}" type="submit" name="action"
+						th:value="'confirm-' + ${half.name()}" class="btn btn-primary"
+						th:attr="data-confirm=${'保存して' + half.label + 'を確定します。確定するとユーザーの勤務表確認に表示されます。よろしいですか？'}"
+						th:text="'保存して' + ${half.label} + 'を確定'">保存して確定</button>
+					<button th:if="${sheet.status(half).confirmed}" type="submit" name="action"
+						th:value="'unconfirm-' + ${half.name()}" class="btn btn-danger"
+						th:attr="data-confirm=${half.label + 'の確定を取り消すと、ユーザーには表示されなくなります。よろしいですか？'}"
+						th:text="${half.label} + 'の確定取消'">確定取消</button>
+				</th:block>
 			</div>
 		</form>
 	</main>

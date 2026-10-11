@@ -26,6 +26,7 @@
 	<!-- 保存完了・エラーのメッセージ -->
 	<div th:fragment="messages">
 		<p class="flash flash-ok" th:if="${message}" th:text="${message}"></p>
+		<p class="flash flash-warn" th:if="${warning}" th:text="${warning}"></p>
 		<p class="flash flash-error" th:if="${error}" th:text="${error}"></p>
 	</div>
 

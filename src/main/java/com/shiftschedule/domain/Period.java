@@ -3,6 +3,7 @@ package com.shiftschedule.domain;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 /**
@@ -62,6 +63,28 @@ public record Period(LocalDate start) {
 
 	public Period previous() {
 		return new Period(start.minusMonths(1));
+	}
+
+	/** 半月の開始日（前半は16日、後半は翌月1日）。確定状態の保存キーにも使う */
+	public LocalDate start(Half half) {
+		return half == Half.FIRST ? start : start.plusMonths(1).withDayOfMonth(1);
+	}
+
+	/** 半月の最終日（前半は月末、後半は15日） */
+	public LocalDate end(Half half) {
+		return half == Half.FIRST ? start.with(TemporalAdjusters.lastDayOfMonth()) : end();
+	}
+
+	public Half halfOf(LocalDate date) {
+		return date.isBefore(start(Half.SECOND)) ? Half.FIRST : Half.SECOND;
+	}
+
+	public List<LocalDate> dates(Half half) {
+		return start(half).datesUntil(end(half).plusDays(1)).toList();
+	}
+
+	public String label(Half half) {
+		return half.getLabel() + "（" + LABEL.format(start(half)) + "〜" + LABEL.format(end(half)) + "）";
 	}
 
 	public boolean contains(LocalDate date) {

@@ -188,6 +188,10 @@ small {
   background: var(--ok-bg);
   color: var(--ok-text);
 }
+.flash-warn {
+  background: var(--warn-bg);
+  color: var(--warn-text);
+}
 .flash-error {
   background: var(--error-bg);
   color: var(--error-text);
@@ -336,11 +340,6 @@ textarea:focus {
   gap: 10px;
   justify-content: flex-end;
   margin-top: 16px;
-}
-
-.form-delete {
-  margin-top: 16px;
-  text-align: left;
 }
 
 .sticky-actions {
@@ -894,6 +893,20 @@ textarea:focus {
 .sheet-readonly .is-me td,
 .sheet-readonly .is-me th {
   background: var(--primary-soft);
+}
+
+.sheet td.is-streak {
+  background: var(--error-bg);
+  box-shadow: inset 0 -3px 0 var(--danger);
+}
+
+.sheet-count.is-streak {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.sheet .half-start {
+  border-left: 3px solid var(--muted);
 }
 
 .my-calendar {

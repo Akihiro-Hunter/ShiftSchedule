@@ -18,9 +18,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.shiftschedule.domain.DailyPlan;
+import com.shiftschedule.domain.Half;
 import com.shiftschedule.domain.Period;
 import com.shiftschedule.domain.RequestStatus;
 import com.shiftschedule.domain.ShiftEntry;
+import com.shiftschedule.service.ConsecutiveWork;
 import com.shiftschedule.service.ShiftCsvWriter;
 import com.shiftschedule.service.ShiftService;
 import com.shiftschedule.service.ShiftSheet;
@@ -47,6 +49,9 @@ public class ManagerShiftController {
 		model.addAttribute("sheet", shiftService.buildSheet(period));
 		model.addAttribute("period", period);
 		model.addAttribute("currentPeriod", Period.current());
+		model.addAttribute("halves", Half.values());
+		model.addAttribute("secondStart", period.start(Half.SECOND));
+		model.addAttribute("maxRun", ConsecutiveWork.MAX_DAYS);
 		model.addAttribute("statuses", RequestStatus.values());
 		model.addAttribute("noteMaxLength", ShiftEntry.NOTE_MAX_LENGTH);
 		model.addAttribute("planMaxCount", DailyPlan.MAX_COUNT);
@@ -65,26 +70,37 @@ public class ManagerShiftController {
 			shiftService.saveOrder(order);
 		}
 		shiftService.savePlans(period, params);
-		switch (action) {
-		case "confirm" -> {
-			shiftService.saveEntries(period, params);
-			shiftService.setConfirmed(period, true);
-			redirect.addFlashAttribute("message", "保存して確定しました。ユーザーの勤務表確認に表示されます");
-		}
-		case "unconfirm" -> {
-			shiftService.saveEntries(period, params);
-			shiftService.setConfirmed(period, false);
-			redirect.addFlashAttribute("message", "確定を取り消しました。ユーザーには表示されなくなります");
-		}
-		default -> {
-			shiftService.saveEntries(period, params);
+		shiftService.saveEntries(period, params);
+		// action は "save"、または "confirm-FIRST" / "unconfirm-SECOND" のように半月を指定する
+		String[] parts = action.split("-", 2);
+		Half half = parts.length == 2 ? parseHalf(parts[1]) : null;
+		if (half != null && parts[0].equals("confirm")) {
+			shiftService.setConfirmed(period, half, true);
+			redirect.addFlashAttribute("message",
+					half.getLabel() + "を保存して確定しました。ユーザーの勤務表確認に表示されます");
+			// 連勤は前半・後半をまたいで数えるので、確定する半月に7連勤以上の人がいれば知らせる（確定は止めない）
+			List<String> names = shiftService.buildSheet(period).overLimitNames(half);
+			if (!names.isEmpty()) {
+				redirect.addFlashAttribute("warning", "7連勤以上の人がいます：" + String.join("、", names));
+			}
+		} else if (half != null && parts[0].equals("unconfirm")) {
+			shiftService.setConfirmed(period, half, false);
+			redirect.addFlashAttribute("message", half.getLabel() + "の確定を取り消しました。ユーザーには表示されなくなります");
+		} else {
 			redirect.addFlashAttribute("message", "保存しました");
-		}
 		}
 		// 鍵の状態は勤怠の保存の後に反映する（鍵をかける直前までの入力は保存する）
 		shiftService.saveLocks(period, params);
 		redirect.addAttribute("start", period.start().toString());
 		return "redirect:/manager/shifts";
+	}
+
+	private static Half parseHalf(String value) {
+		try {
+			return Half.valueOf(value);
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
 	}
 
 	@GetMapping("/csv")

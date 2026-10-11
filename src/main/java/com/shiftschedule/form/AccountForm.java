@@ -1,4 +1,4 @@
-package com.shiftschedule.web.manager;
+package com.shiftschedule.form;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,8 +19,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
 
 /** ユーザー情報管理の入力フォーム */
+@Data
 public class AccountForm {
 
 	private Long id;
@@ -80,75 +82,8 @@ public class AccountForm {
 		return id == null;
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getUserNumber() {
-		return userNumber;
-	}
-
-	public void setUserNumber(String userNumber) {
-		this.userNumber = userNumber;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public LocalDate getBirthDate() {
-		return birthDate;
-	}
-
-	public void setBirthDate(LocalDate birthDate) {
-		this.birthDate = birthDate;
-	}
-
-	public LocalDate getHireDate() {
-		return hireDate;
-	}
-
-	public void setHireDate(LocalDate hireDate) {
-		this.hireDate = hireDate;
-	}
-
-	public BigDecimal getPaidLeaveDays() {
-		return paidLeaveDays;
-	}
-
-	public void setPaidLeaveDays(BigDecimal paidLeaveDays) {
-		this.paidLeaveDays = paidLeaveDays;
-	}
-
-	public Role getRole() {
-		return role;
-	}
-
-	public void setRole(Role role) {
-		this.role = role;
-	}
-
-	public Set<WorkTask> getTasks() {
-		return tasks;
-	}
-
+	/** チェックが1つもないと null が届くため空集合にする */
 	public void setTasks(Set<WorkTask> tasks) {
 		this.tasks = tasks == null ? new HashSet<>() : tasks;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
 	}
 }

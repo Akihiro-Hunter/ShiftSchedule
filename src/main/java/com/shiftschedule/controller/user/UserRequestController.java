@@ -1,4 +1,4 @@
-package com.shiftschedule.web.user;
+package com.shiftschedule.controller.user;
 
 import java.time.LocalDate;
 import java.util.HashMap;

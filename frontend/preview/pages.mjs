@@ -349,13 +349,15 @@ function managerShifts() {
 							</th>
 							${row.cells
 								.map(
-									(cell) => `<td class="${reqClass(cell)}" title="${reqTitle(cell)}">${
+									(cell) => `<td class="${reqClass(cell)}" title="${reqTitle(cell)}" data-day="${iso(cell.date)}">${
 										cell.locked
 											? '<span class="mark mark-locked">公</span>'
 											: `<label class="off-toggle"><input type="checkbox" name="off_${row.id}_${iso(cell.date)}"${cell.dayOff ? ' checked' : ''}><span>公</span></label>`
 									}</td>`,
 								)
 								.join('')}
+							<td class="sheet-count" rowspan="2" data-work-days>${row.cells.filter((c) => !c.dayOff).length}</td>
+							<td class="sheet-count" rowspan="2" data-off-days>${row.cells.filter((c) => c.dayOff).length}</td>
 							<td class="sheet-remark" rowspan="2">
 								<div class="remark-text">${esc(row.note)}</div>
 								${row.updatedAt ? `<small class="muted">更新 ${row.updatedAt}</small>` : '<small class="muted">未提出</small>'}
@@ -406,18 +408,37 @@ function managerShifts() {
 			</span>
 		</div>
 		<p class="hint">上段のマスをクリックすると「公」（休み）と空白（出勤）が切り替わります。下段には自由に入力できます（<span>${NOTE_MAX_LENGTH}</span>文字まで）。<br>
-			氏名の左の <span class="drag-handle-sample">⠿</span> をドラッグ（または ↑↓ キー）すると並び順を変えられます（保存で反映され、ユーザーの勤務表確認・CSV・PDFも同じ順になります）。</p>
+			氏名の左の <span class="drag-handle-sample">⠿</span> をドラッグ（または ↑↓ キー）すると並び順を変えられます（保存で反映され、ユーザーの勤務表確認・CSV・PDFも同じ順になります）。<br>
+			一番下の「予定人数」は日ごとに変更できます（保存で反映）。</p>
 
-		<form method="post" id="shift-form" data-dirty-guard>
+		<form method="post" id="shift-form" data-dirty-guard data-worker-total>
 			<div class="sheet-wrap">
 				<table class="sheet" data-sortable>
 					<thead>
 						<tr>
 							<th class="sheet-name">氏名</th>
 							${sheet.dates.map((d) => `<th class="sheet-date ${weekClass(d)}"><span>${d.getDate()}</span><br><small>${week(d)}</small></th>`).join('')}
+							<th class="sheet-count">出勤<br>回数</th>
+							<th class="sheet-count">公年<br>休数</th>
 							<th class="sheet-remark">備考（ユーザー入力）</th>
 						</tr>
 					</thead>${body}
+					<tfoot class="sheet-total">
+						<tr>
+							<th class="sheet-name">出勤人数</th>
+							${sheet.dates.map((d, i) => `<td data-worker-count="${iso(d)}">${sheet.rows.filter((r) => !r.cells[i].dayOff).length}</td>`).join('')}
+							<td class="sheet-count"></td>
+							<td class="sheet-count"></td>
+							<td class="sheet-remark"></td>
+						</tr>
+						<tr>
+							<th class="sheet-name">予定人数</th>
+							${sheet.dates.map((d) => `<td><input type="number" class="plan-input" name="plan_${iso(d)}" value="${d.getDay() === 1 || d.getDay() === 2 ? 13 : 15}" min="0" max="999" required></td>`).join('')}
+							<td class="sheet-count"></td>
+							<td class="sheet-count"></td>
+							<td class="sheet-remark muted">既定は15人（月・火は13人）</td>
+						</tr>
+					</tfoot>
 				</table>
 			</div>
 

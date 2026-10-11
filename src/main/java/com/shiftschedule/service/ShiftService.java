@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.shiftschedule.domain.Account;
+import com.shiftschedule.domain.DailyPlan;
 import com.shiftschedule.domain.Period;
 import com.shiftschedule.domain.RequestStatus;
 import com.shiftschedule.domain.Role;
@@ -20,6 +21,7 @@ import com.shiftschedule.domain.ShiftPeriod;
 import com.shiftschedule.domain.ShiftRequest;
 import com.shiftschedule.domain.ShiftRequestNote;
 import com.shiftschedule.repository.AccountRepository;
+import com.shiftschedule.repository.DailyPlanRepository;
 import com.shiftschedule.repository.ShiftEntryRepository;
 import com.shiftschedule.repository.ShiftPeriodRepository;
 import com.shiftschedule.repository.ShiftRequestNoteRepository;
@@ -35,14 +37,17 @@ public class ShiftService {
 	private final ShiftRequestNoteRepository requestNotes;
 	private final ShiftEntryRepository entries;
 	private final ShiftPeriodRepository periods;
+	private final DailyPlanRepository plans;
 
 	public ShiftService(AccountRepository accounts, ShiftRequestRepository requests,
-			ShiftRequestNoteRepository requestNotes, ShiftEntryRepository entries, ShiftPeriodRepository periods) {
+			ShiftRequestNoteRepository requestNotes, ShiftEntryRepository entries, ShiftPeriodRepository periods,
+			DailyPlanRepository plans) {
 		this.accounts = accounts;
 		this.requests = requests;
 		this.requestNotes = requestNotes;
 		this.entries = entries;
 		this.periods = periods;
+		this.plans = plans;
 	}
 
 	@Transactional(readOnly = true)
@@ -85,8 +90,17 @@ public class ShiftService {
 					note == null ? null : note.getNote(), note == null ? null : note.getUpdatedAt()));
 		}
 
+		Map<LocalDate, Integer> planMap = new HashMap<>();
+		for (DailyPlan plan : plans.findByWorkDateBetween(period.start(), period.end())) {
+			planMap.put(plan.getWorkDate(), plan.getPlannedCount());
+		}
+		List<Integer> plannedCounts = new ArrayList<>();
+		for (LocalDate date : dates) {
+			plannedCounts.add(planMap.getOrDefault(date, DailyPlan.defaultCount(date)));
+		}
+
 		ShiftPeriod status = periods.findById(period.start()).orElse(null);
-		return new ShiftSheet(period, dates, rows, status != null && status.isConfirmed(),
+		return new ShiftSheet(period, dates, rows, plannedCounts, status != null && status.isConfirmed(),
 				status == null ? null : status.getConfirmedAt());
 	}
 
@@ -128,6 +142,46 @@ public class ShiftService {
 				entry.setNote(note.isEmpty() ? null : note);
 				entries.save(entry);
 			}
+		}
+	}
+
+	/**
+	 * 日ごとの予定人数を保存する。既定値と同じ日は保存しない（既定値が変わっても追従するように）。
+	 *
+	 * @param params 画面のフォーム値（plan_{yyyy-MM-dd}=予定人数）。不正な値の日は変更しない
+	 */
+	public void savePlans(Period period, Map<String, String> params) {
+		Map<LocalDate, DailyPlan> existing = new HashMap<>();
+		for (DailyPlan plan : plans.findByWorkDateBetween(period.start(), period.end())) {
+			existing.put(plan.getWorkDate(), plan);
+		}
+		for (LocalDate date : period.dates()) {
+			Integer count = parseCount(params.get("plan_" + date));
+			if (count == null) {
+				continue;
+			}
+			DailyPlan plan = existing.get(date);
+			if (count == DailyPlan.defaultCount(date)) {
+				if (plan != null) {
+					plans.delete(plan);
+				}
+			} else if (plan == null) {
+				plans.save(new DailyPlan(date, count));
+			} else {
+				plan.setPlannedCount(count);
+			}
+		}
+	}
+
+	private static Integer parseCount(String value) {
+		if (value == null) {
+			return null;
+		}
+		try {
+			int count = Integer.parseInt(value.strip());
+			return count >= 0 && count <= DailyPlan.MAX_COUNT ? count : null;
+		} catch (NumberFormatException e) {
+			return null;
 		}
 	}
 

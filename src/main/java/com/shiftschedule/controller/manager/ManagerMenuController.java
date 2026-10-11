@@ -1,4 +1,4 @@
-package com.shiftschedule.web.manager;
+package com.shiftschedule.controller.manager;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

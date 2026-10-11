@@ -1,4 +1,4 @@
-package com.shiftschedule.web.manager;
+package com.shiftschedule.controller.manager;
 
 import java.util.Objects;
 
@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.shiftschedule.domain.Account;
 import com.shiftschedule.domain.Role;
 import com.shiftschedule.domain.WorkTask;
+import com.shiftschedule.form.AccountForm;
 import com.shiftschedule.security.LoginAccount;
 import com.shiftschedule.service.AccountRules;
 import com.shiftschedule.service.AccountService;

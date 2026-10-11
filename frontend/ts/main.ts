@@ -5,11 +5,13 @@
 import { initConfirm } from './modules/confirm';
 import { initDirtyGuard } from './modules/dirty-guard';
 import { initSortable } from './modules/sortable';
+import { initWorkerTotal } from './modules/worker-total';
 
 function init(): void {
 	initConfirm();
 	initDirtyGuard();
 	initSortable();
+	initWorkerTotal();
 }
 
 if (document.readyState === 'loading') {

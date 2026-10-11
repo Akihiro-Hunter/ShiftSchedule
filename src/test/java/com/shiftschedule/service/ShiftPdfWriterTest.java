@@ -33,7 +33,7 @@ class ShiftPdfWriterTest {
 			}
 			rows.add(new ShiftSheet.Row(id, String.format("%08d", id), "ユーザー" + id, cells, null, null));
 		}
-		ShiftSheet sheet = new ShiftSheet(period, period.dates(), rows, true, null);
+		ShiftSheet sheet = new ShiftSheet(period, period.dates(), rows, List.of(), true, null);
 
 		byte[] pdf = new ShiftPdfWriter(new DateLabels(), FONT).write(sheet, 2L);
 

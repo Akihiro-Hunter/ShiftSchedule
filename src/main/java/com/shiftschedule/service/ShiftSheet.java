@@ -9,12 +9,31 @@ import java.util.List;
 import com.shiftschedule.domain.Period;
 import com.shiftschedule.domain.RequestStatus;
 
-/** 朝アシシフト1期間分の表（1ユーザーにつき上段・下段の2段） */
-public record ShiftSheet(Period period, List<LocalDate> dates, List<Row> rows, boolean confirmed,
-		LocalDateTime confirmedAt) {
+/**
+ * 朝アシシフト1期間分の表（1ユーザーにつき上段・下段の2段）。
+ *
+ * @param plannedCounts 日ごとの予定人数（dates と同じ順）
+ */
+public record ShiftSheet(Period period, List<LocalDate> dates, List<Row> rows, List<Integer> plannedCounts,
+		boolean confirmed, LocalDateTime confirmedAt) {
 
 	public static final String DAY_OFF_MARK = "公";
 	public static final String REQUESTED_OFF_MARK = "希";
+
+	/** 日ごとの出勤人数（上段が「公」でない人の数。dates と同じ順） */
+	public List<Integer> workerCounts() {
+		List<Integer> counts = new ArrayList<>();
+		for (int i = 0; i < dates.size(); i++) {
+			int count = 0;
+			for (Row row : rows) {
+				if (!row.cells().get(i).dayOff()) {
+					count++;
+				}
+			}
+			counts.add(count);
+		}
+		return counts;
+	}
 
 	/**
 	 * 1ユーザー分の行。
@@ -24,6 +43,16 @@ public record ShiftSheet(Period period, List<LocalDate> dates, List<Row> rows, b
 	 */
 	public record Row(Long accountId, String userNumber, String name, List<Cell> cells, String requestNote,
 			LocalDateTime requestUpdatedAt) {
+
+		/** 出勤回数（上段が「公」でない日数） */
+		public int workDays() {
+			return (int) cells.stream().filter(cell -> !cell.dayOff()).count();
+		}
+
+		/** 公年休数（上段が「公」の日数。休み希望の日も含む） */
+		public int dayOffDays() {
+			return (int) cells.stream().filter(Cell::dayOff).count();
+		}
 
 		/**
 		 * 日曜始まりのカレンダー表示用に、1週7マスずつに区切る。

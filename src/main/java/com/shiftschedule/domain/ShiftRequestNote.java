@@ -13,10 +13,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /** 次回勤務表作成の備考と最終保存日時（ユーザー・期間ごと） */
 @Entity
 @Table(name = "shift_request_notes", uniqueConstraints = @UniqueConstraint(columnNames = { "account_id", "period_start" }))
+@Data
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShiftRequestNote {
 
 	public static final int NOTE_MAX_LENGTH = 500;
@@ -25,8 +32,11 @@ public class ShiftRequestNote {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	/** LAZY のため toString / equals では読み込まない */
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "account_id")
+	@ToString.Exclude
+	@EqualsAndHashCode.Exclude
 	private Account account;
 
 	@Column(name = "period_start", nullable = false)
@@ -38,39 +48,8 @@ public class ShiftRequestNote {
 	@Column(nullable = false)
 	private LocalDateTime updatedAt;
 
-	protected ShiftRequestNote() {
-	}
-
 	public ShiftRequestNote(Account account, LocalDate periodStart) {
 		this.account = account;
 		this.periodStart = periodStart;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public Account getAccount() {
-		return account;
-	}
-
-	public LocalDate getPeriodStart() {
-		return periodStart;
-	}
-
-	public String getNote() {
-		return note;
-	}
-
-	public void setNote(String note) {
-		this.note = note;
-	}
-
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
 	}
 }

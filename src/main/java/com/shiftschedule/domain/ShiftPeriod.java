@@ -7,10 +7,15 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /** 期間ごとの朝アシシフトの確定状態 */
 @Entity
 @Table(name = "shift_periods")
+@Data
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShiftPeriod {
 
 	@Id
@@ -22,30 +27,7 @@ public class ShiftPeriod {
 
 	private LocalDateTime confirmedAt;
 
-	protected ShiftPeriod() {
-	}
-
 	public ShiftPeriod(LocalDate periodStart) {
 		this.periodStart = periodStart;
-	}
-
-	public LocalDate getPeriodStart() {
-		return periodStart;
-	}
-
-	public boolean isConfirmed() {
-		return confirmed;
-	}
-
-	public void setConfirmed(boolean confirmed) {
-		this.confirmed = confirmed;
-	}
-
-	public LocalDateTime getConfirmedAt() {
-		return confirmedAt;
-	}
-
-	public void setConfirmedAt(LocalDateTime confirmedAt) {
-		this.confirmedAt = confirmedAt;
 	}
 }

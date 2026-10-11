@@ -1,4 +1,4 @@
-package com.shiftschedule.web;
+package com.shiftschedule.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

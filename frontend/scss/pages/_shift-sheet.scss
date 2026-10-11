@@ -94,6 +94,20 @@ $row-divider: 2px solid c(border-strong);
 		z-index: 3;
 	}
 
+	// 出勤回数・公年休数（15日と備考の間）
+	.sheet-count {
+		min-width: 46px;
+		padding: 2px 4px;
+		font-weight: 700;
+		text-align: right;
+		background: c(surface-sub);
+	}
+
+	thead .sheet-count {
+		font-size: 12px;
+		text-align: center;
+	}
+
 	.sheet-remark {
 		min-width: 200px;
 		max-width: 260px;
@@ -106,6 +120,7 @@ $row-divider: 2px solid c(border-strong);
 	.sheet-bottom td,
 	.sheet-bottom th,
 	.sheet-top .sheet-name,
+	.sheet-top .sheet-count,
 	.sheet-top .sheet-remark {
 		border-bottom: $row-divider;
 	}
@@ -145,6 +160,57 @@ $row-divider: 2px solid c(border-strong);
 	// 並び順を変えたユーザー（保存するまで）
 	&.is-moved .sheet-name {
 		box-shadow: inset 4px 0 0 c(seg-undecided);
+	}
+}
+
+// 一番下の合計（出勤人数・予定人数）。縦スクロールしても下に固定
+.sheet-total {
+	th,
+	td {
+		position: sticky;
+		z-index: 1;
+		background: c(surface-alt);
+		font-weight: 700;
+	}
+
+	tr:first-child > * {
+		bottom: $cell-height;
+		border-top: $row-divider;
+	}
+
+	tr:last-child > * {
+		bottom: 0;
+	}
+
+	// 氏名列は左右・上下とも固定
+	.sheet-name {
+		z-index: 3;
+	}
+
+	.sheet-remark {
+		font-size: 12px;
+		font-weight: normal;
+		vertical-align: middle;
+	}
+}
+
+.sheet .plan-input {
+	width: 100%;
+	min-width: $cell-width;
+	height: $cell-height;
+	padding: 0;
+	border: none;
+	border-radius: 0;
+	background: #fff;
+	font-size: 13px;
+	font-weight: 700;
+	text-align: center;
+	-moz-appearance: textfield;
+
+	&::-webkit-inner-spin-button,
+	&::-webkit-outer-spin-button {
+		margin: 0;
+		-webkit-appearance: none;
 	}
 }
 

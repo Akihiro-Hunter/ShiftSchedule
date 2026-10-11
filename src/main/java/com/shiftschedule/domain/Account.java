@@ -17,10 +17,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
+import lombok.Data;
 
 /** 管理者・アルバイトのアカウントと個人情報 */
 @Entity
 @Table(name = "accounts")
+@Data
 public class Account {
 
 	@Id
@@ -61,78 +63,7 @@ public class Account {
 	@Column(name = "task", length = 20)
 	private Set<WorkTask> tasks = new HashSet<>();
 
-	public Long getId() {
-		return id;
-	}
-
-	public String getUserNumber() {
-		return userNumber;
-	}
-
-	public void setUserNumber(String userNumber) {
-		this.userNumber = userNumber;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public LocalDate getBirthDate() {
-		return birthDate;
-	}
-
-	public void setBirthDate(LocalDate birthDate) {
-		this.birthDate = birthDate;
-	}
-
-	public LocalDate getHireDate() {
-		return hireDate;
-	}
-
-	public void setHireDate(LocalDate hireDate) {
-		this.hireDate = hireDate;
-	}
-
-	public BigDecimal getPaidLeaveDays() {
-		return paidLeaveDays;
-	}
-
-	public void setPaidLeaveDays(BigDecimal paidLeaveDays) {
-		this.paidLeaveDays = paidLeaveDays;
-	}
-
-	public Role getRole() {
-		return role;
-	}
-
-	public void setRole(Role role) {
-		this.role = role;
-	}
-
-	public Integer getSortOrder() {
-		return sortOrder;
-	}
-
-	public void setSortOrder(Integer sortOrder) {
-		this.sortOrder = sortOrder;
-	}
-
-	public Set<WorkTask> getTasks() {
-		return tasks;
-	}
-
+	/** Hibernate が管理するコレクションを差し替えないよう、中身を入れ替える */
 	public void setTasks(Set<WorkTask> tasks) {
 		this.tasks.clear();
 		if (tasks != null) {

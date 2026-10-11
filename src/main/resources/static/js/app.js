@@ -108,11 +108,38 @@
     });
   }
 
+  // frontend/ts/modules/worker-total.ts
+  function initWorkerTotal() {
+    const form = document.querySelector("form[data-worker-total]");
+    if (!form) return;
+    const totals = Array.from(form.querySelectorAll("[data-worker-count]"));
+    const users = Array.from(form.querySelectorAll("[data-sortable-item]"));
+    const isOff = (cell) => cell.querySelector(".mark-locked") !== null || (cell.querySelector('input[type="checkbox"]')?.checked ?? false);
+    const update = () => {
+      for (const total of totals) {
+        const cells = form.querySelectorAll(`[data-day="${total.dataset.workerCount}"]`);
+        total.textContent = String(Array.from(cells).filter((cell) => !isOff(cell)).length);
+      }
+      for (const user of users) {
+        const cells = Array.from(user.querySelectorAll("[data-day]"));
+        const off = cells.filter(isOff).length;
+        const work = user.querySelector("[data-work-days]");
+        const offDays = user.querySelector("[data-off-days]");
+        if (work) work.textContent = String(cells.length - off);
+        if (offDays) offDays.textContent = String(off);
+      }
+    };
+    form.addEventListener("change", (event) => {
+      if (event.target instanceof HTMLInputElement && event.target.type === "checkbox") update();
+    });
+  }
+
   // frontend/ts/main.ts
   function init() {
     initConfirm();
     initDirtyGuard();
     initSortable();
+    initWorkerTotal();
   }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);

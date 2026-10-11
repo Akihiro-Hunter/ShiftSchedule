@@ -12,6 +12,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * 管理者が朝アシシフトに入力した1日分の内容。
@@ -19,6 +24,8 @@ import jakarta.persistence.UniqueConstraint;
  */
 @Entity
 @Table(name = "shift_entries", uniqueConstraints = @UniqueConstraint(columnNames = { "account_id", "work_date" }))
+@Data
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShiftEntry {
 
 	public static final int NOTE_MAX_LENGTH = 10;
@@ -27,8 +34,11 @@ public class ShiftEntry {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	/** LAZY のため toString / equals では読み込まない */
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "account_id")
+	@ToString.Exclude
+	@EqualsAndHashCode.Exclude
 	private Account account;
 
 	@Column(name = "work_date", nullable = false)
@@ -42,39 +52,8 @@ public class ShiftEntry {
 	@Column(length = NOTE_MAX_LENGTH)
 	private String note;
 
-	protected ShiftEntry() {
-	}
-
 	public ShiftEntry(Account account, LocalDate workDate) {
 		this.account = account;
 		this.workDate = workDate;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public Account getAccount() {
-		return account;
-	}
-
-	public LocalDate getWorkDate() {
-		return workDate;
-	}
-
-	public boolean isDayOff() {
-		return dayOff;
-	}
-
-	public void setDayOff(boolean dayOff) {
-		this.dayOff = dayOff;
-	}
-
-	public String getNote() {
-		return note;
-	}
-
-	public void setNote(String note) {
-		this.note = note;
 	}
 }

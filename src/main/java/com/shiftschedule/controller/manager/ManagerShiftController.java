@@ -1,4 +1,4 @@
-package com.shiftschedule.web.manager;
+package com.shiftschedule.controller.manager;
 
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.shiftschedule.domain.DailyPlan;
 import com.shiftschedule.domain.Period;
 import com.shiftschedule.domain.RequestStatus;
 import com.shiftschedule.domain.ShiftEntry;
@@ -48,6 +49,7 @@ public class ManagerShiftController {
 		model.addAttribute("currentPeriod", Period.current());
 		model.addAttribute("statuses", RequestStatus.values());
 		model.addAttribute("noteMaxLength", ShiftEntry.NOTE_MAX_LENGTH);
+		model.addAttribute("planMaxCount", DailyPlan.MAX_COUNT);
 		return "manager/shifts";
 	}
 
@@ -62,6 +64,7 @@ public class ManagerShiftController {
 		if (order != null) {
 			shiftService.saveOrder(order);
 		}
+		shiftService.savePlans(period, params);
 		switch (action) {
 		case "confirm" -> {
 			shiftService.saveEntries(period, params);

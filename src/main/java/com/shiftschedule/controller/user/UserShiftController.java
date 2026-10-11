@@ -1,4 +1,4 @@
-package com.shiftschedule.web.user;
+package com.shiftschedule.controller.user;
 
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;

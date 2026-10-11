@@ -87,6 +87,12 @@
 				<button type="submit" class="btn btn-primary">保存</button>
 			</div>
 		</form>
+
+		<form th:unless="${accountForm.isNew()}" class="form-delete"
+			th:action="@{/manager/users/{id}/delete(id=${accountForm.id})}" method="post"
+			th:data-confirm="${accountForm.name} + ' さんを削除します。勤務表のデータも削除されます。よろしいですか？'">
+			<button type="submit" class="btn btn-danger">削除</button>
+		</form>
 	</main>
 </body>
 </html>

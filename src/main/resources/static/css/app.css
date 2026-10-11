@@ -338,6 +338,11 @@ textarea:focus {
   margin-top: 16px;
 }
 
+.form-delete {
+  margin-top: 16px;
+  text-align: left;
+}
+
 .sticky-actions {
   position: sticky;
   bottom: 0;

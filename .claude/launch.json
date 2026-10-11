@@ -4,8 +4,21 @@
     {
       "name": "frontend-preview",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 5173
+    },
+    {
+      "name": "spring-app",
+      "runtimeExecutable": "powershell",
+      "runtimeArgs": [
+        "-NoProfile",
+        "-Command",
+        "Set-Location -LiteralPath 'C:/git_repository/Shift Schedule'; ./mvnw.cmd spring-boot:run"
+      ],
+      "port": 8080
     }
   ]
 }

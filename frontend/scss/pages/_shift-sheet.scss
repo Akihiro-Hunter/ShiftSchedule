@@ -111,6 +111,43 @@ $row-divider: 2px solid c(border-strong);
 	}
 }
 
+// ドラッグで並び替え（管理者）。1ユーザー＝1つの tbody
+.sheet-name-inner {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.drag-handle {
+	flex: none;
+	padding: 2px;
+	color: c(muted);
+	font-size: 16px;
+	line-height: 1;
+	cursor: grab;
+	user-select: none;
+
+	&:hover {
+		color: c(primary);
+	}
+}
+
+.drag-handle-sample {
+	color: c(muted);
+}
+
+.sheet-user {
+	// ドラッグ中のユーザー
+	&.is-dragging {
+		opacity: 0.4;
+	}
+
+	// 並び順を変えたユーザー（保存するまで）
+	&.is-moved .sheet-name {
+		box-shadow: inset 4px 0 0 c(seg-undecided);
+	}
+}
+
 .remark-text {
 	white-space: pre-wrap;
 	word-break: break-all;

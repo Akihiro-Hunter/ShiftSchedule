@@ -6,7 +6,6 @@
 		<h1 class="login-title">朝アシシフト</h1>
 
 		<p class="flash flash-error" th:if="${param.error}">ユーザー番号またはパスワードが正しくありません</p>
-		<p class="flash flash-ok" th:if="${param.logout}">ログアウトしました</p>
 
 		<!-- 見た目は共通。送信先だけ /manager/login と /user/login で異なる -->
 		<form th:action="@{'/' + ${area} + '/login'}" method="post" class="form">

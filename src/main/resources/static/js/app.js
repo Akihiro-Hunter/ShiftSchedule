@@ -45,35 +45,74 @@
     return pairs.join("&");
   }
 
-  // frontend/ts/modules/request-counter.ts
-  var DAY_SELECTOR = ".req-day";
-  var UNANSWERED_CLASS = "is-unanswered";
-  function initRequestCounter() {
-    const form = document.querySelector("form[data-request-form]");
-    if (!form) return;
-    const counter = document.querySelector("[data-unanswered-count]");
-    const days = Array.from(form.querySelectorAll(DAY_SELECTOR));
-    const update = () => {
-      let unanswered = 0;
-      for (const day of days) {
-        const answered = day.querySelector('input[type="radio"]:checked') !== null;
-        day.classList.toggle(UNANSWERED_CLASS, !answered);
-        if (!answered) unanswered++;
-      }
-      if (counter) {
-        counter.textContent = `\u672A\u5165\u529B ${unanswered}\u65E5`;
-        counter.hidden = unanswered === 0;
-      }
+  // frontend/ts/modules/sortable.ts
+  var ITEM_SELECTOR = "[data-sortable-item]";
+  var HANDLE_SELECTOR = "[data-sortable-handle]";
+  var DRAGGING_CLASS = "is-dragging";
+  var MOVED_CLASS = "is-moved";
+  function initSortable() {
+    document.querySelectorAll("[data-sortable]").forEach(setup);
+  }
+  function setup(container) {
+    const items = () => Array.from(container.querySelectorAll(ITEM_SELECTOR));
+    const initial = items();
+    let dragging = null;
+    const markMoved = () => {
+      items().forEach((item, i) => item.classList.toggle(MOVED_CLASS, initial[i] !== item));
     };
-    form.addEventListener("change", update);
-    update();
+    container.addEventListener("dragstart", (event) => {
+      const handle = event.target.closest(HANDLE_SELECTOR);
+      const item = handle?.closest(ITEM_SELECTOR);
+      if (!item || !event.dataTransfer) return;
+      dragging = item;
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", "");
+      const rect = item.getBoundingClientRect();
+      event.dataTransfer.setDragImage(item, event.clientX - rect.left, event.clientY - rect.top);
+      requestAnimationFrame(() => {
+        if (dragging === item) item.classList.add(DRAGGING_CLASS);
+      });
+    });
+    container.addEventListener("dragover", (event) => {
+      if (!dragging) return;
+      event.preventDefault();
+      const target = event.target.closest(ITEM_SELECTOR);
+      if (!target || target === dragging || !container.contains(target)) return;
+      const rect = target.getBoundingClientRect();
+      const before = event.clientY < rect.top + rect.height / 2;
+      target.parentNode?.insertBefore(dragging, before ? target : target.nextSibling);
+    });
+    container.addEventListener("drop", (event) => {
+      if (dragging) event.preventDefault();
+    });
+    container.addEventListener("dragend", () => {
+      dragging?.classList.remove(DRAGGING_CLASS);
+      dragging = null;
+      markMoved();
+    });
+    container.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+      const handle = event.target.closest(HANDLE_SELECTOR);
+      const item = handle?.closest(ITEM_SELECTOR);
+      if (!handle || !item) return;
+      event.preventDefault();
+      const list = items();
+      const index = list.indexOf(item);
+      if (event.key === "ArrowUp" && index > 0) {
+        item.parentNode?.insertBefore(item, list[index - 1]);
+      } else if (event.key === "ArrowDown" && index < list.length - 1) {
+        item.parentNode?.insertBefore(item, list[index + 1].nextSibling);
+      }
+      handle.focus();
+      markMoved();
+    });
   }
 
   // frontend/ts/main.ts
   function init() {
     initConfirm();
     initDirtyGuard();
-    initRequestCounter();
+    initSortable();
   }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);

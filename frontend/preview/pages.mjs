@@ -25,11 +25,12 @@ const ACCOUNTS = [
 	{ id: 1, no: '10000001', name: '山田 太郎', role: 'MANAGER', birth: '1980/04/12', hire: '2010/04/01', leave: 0, tasks: [] },
 	{ id: 2, no: '20240001', name: '佐藤 花子', role: 'USER', birth: '2001/07/03', hire: '2022/10/16', leave: 10, tasks: ['クール', 'ネコポス', 'リフト'] },
 	{ id: 3, no: '20240002', name: '鈴木 一郎', role: 'USER', birth: '1998/12/24', hire: '2023/04/01', leave: 7.5, tasks: ['苗穂', '環状'] },
-	{ id: 4, no: '20240003', name: '高橋 美咲', role: 'USER', birth: '2003/02/14', hire: '2024/06/16', leave: 3, tasks: ['クール', '光星'] },
+	{ id: 4, no: '20240003', name: '高橋 美咲', role: 'PART', birth: '2003/02/14', hire: '2024/06/16', leave: 3, tasks: ['クール', '光星'] },
 	{ id: 5, no: '20240004', name: '田中 健太', role: 'USER', birth: '1995/09/30', hire: '2021/01/16', leave: 12.5, tasks: TASKS },
 	{ id: 6, no: '20240005', name: '伊藤 さくら', role: 'USER', birth: '2004/05/05', hire: '2025/03/16', leave: 0, tasks: ['ネコポス'] },
 ];
-const USERS = ACCOUNTS.filter((a) => a.role === 'USER');
+const ROLES = { MANAGER: '管理者', USER: 'アルバイト', PART: 'パート' };
+const USERS = ACCOUNTS.filter((a) => a.role !== 'MANAGER');
 
 /** 毎回同じ結果になる疑似乱数（見た目がビルドごとに変わらないように） */
 function random(seed) {
@@ -77,6 +78,15 @@ function buildSheet(period, { withRequests }) {
 		};
 	});
 	return { dates, rows };
+}
+
+/** 日曜始まりのカレンダー用に7マスずつ区切る（ShiftSheet.Row#calendarWeeks 相当） */
+function calendarWeeks(cells) {
+	const slots = [...Array(cells[0].date.getDay()).fill(null), ...cells];
+	while (slots.length % 7 !== 0) slots.push(null);
+	const weeks = [];
+	for (let i = 0; i < slots.length; i += 7) weeks.push(slots.slice(i, i + 7));
+	return weeks;
 }
 
 // ---------- 共通パーツ（fragments/layout.html 相当） ----------
@@ -194,7 +204,7 @@ function managerUsers() {
 					<tr>
 						<td>${a.no}</td>
 						<td>${esc(a.name)}</td>
-						<td><span class="badge${a.role === 'MANAGER' ? ' badge-manager' : ''}">${a.role === 'MANAGER' ? '管理者' : 'アルバイト'}</span></td>
+						<td><span class="badge${a.role === 'MANAGER' ? ' badge-manager' : a.role === 'PART' ? ' badge-part' : ''}">${ROLES[a.role]}</span></td>
 						<td>${a.birth}</td>
 						<td>${a.hire}</td>
 						<td class="num">${a.leave}日</td>
@@ -223,7 +233,7 @@ function managerUsers() {
 					<tr>
 						<th>ユーザー番号</th>
 						<th>氏名</th>
-						<th>権限</th>
+						<th>役職</th>
 						<th>生年月日</th>
 						<th>入社日</th>
 						<th class="num">残有給</th>
@@ -264,10 +274,11 @@ function managerUserForm() {
 			</label>
 
 			<label class="form-row">
-				<span class="form-label">権限</span>
+				<span class="form-label">役職</span>
 				<select name="role">
-					<option value="USER" selected>アルバイト</option>
 					<option value="MANAGER">管理者</option>
+					<option value="USER" selected>アルバイト</option>
+					<option value="PART">パート</option>
 				</select>
 			</label>
 
@@ -281,7 +292,7 @@ function managerUserForm() {
 					<input type="date" name="hireDate" value="${a.hire.replaceAll('/', '-')}">
 				</label>
 			</div>
-			<p class="hint">アルバイトの場合、生年月日と入社日は必須です</p>
+			<p class="hint">アルバイト・パートの場合、生年月日と入社日は必須です</p>
 
 			<label class="form-row">
 				<span class="form-label">残年次有給休暇数（日）</span>
@@ -323,10 +334,18 @@ function managerShifts() {
 	const body = sheet.rows
 		.map(
 			(row) => `
+					<tbody class="sheet-user" data-sortable-item>
 						<tr class="sheet-top">
 							<th class="sheet-name" rowspan="2">
-								<span>${esc(row.name)}</span><br>
-								<small>${row.no}</small>
+								<div class="sheet-name-inner">
+									<span class="drag-handle" draggable="true" data-sortable-handle tabindex="0"
+										title="ドラッグ（または ↑↓ キー）で並び替え" aria-label="並び替え">⠿</span>
+									<div>
+										<span>${esc(row.name)}</span><br>
+										<small>${row.no}</small>
+									</div>
+								</div>
+								<input type="hidden" name="order" value="${row.id}">
 							</th>
 							${row.cells
 								.map(
@@ -352,7 +371,8 @@ function managerShifts() {
 									}</td>`,
 								)
 								.join('')}
-						</tr>`,
+						</tr>
+					</tbody>`,
 		)
 		.join('');
 
@@ -385,20 +405,19 @@ function managerShifts() {
 				<span class="legend-item req-none">未入力</span>
 			</span>
 		</div>
-		<p class="hint">上段のマスをクリックすると「公」（休み）と空白（出勤）が切り替わります。下段には自由に入力できます（<span>${NOTE_MAX_LENGTH}</span>文字まで）。</p>
+		<p class="hint">上段のマスをクリックすると「公」（休み）と空白（出勤）が切り替わります。下段には自由に入力できます（<span>${NOTE_MAX_LENGTH}</span>文字まで）。<br>
+			氏名の左の <span class="drag-handle-sample">⠿</span> をドラッグ（または ↑↓ キー）すると並び順を変えられます（保存で反映され、ユーザーの勤務表確認・CSV・PDFも同じ順になります）。</p>
 
 		<form method="post" id="shift-form" data-dirty-guard>
 			<div class="sheet-wrap">
-				<table class="sheet">
+				<table class="sheet" data-sortable>
 					<thead>
 						<tr>
 							<th class="sheet-name">氏名</th>
 							${sheet.dates.map((d) => `<th class="sheet-date ${weekClass(d)}"><span>${d.getDate()}</span><br><small>${week(d)}</small></th>`).join('')}
 							<th class="sheet-remark">備考（ユーザー入力）</th>
 						</tr>
-					</thead>
-					<tbody>${body}
-					</tbody>
+					</thead>${body}
 				</table>
 			</div>
 
@@ -436,18 +455,27 @@ function userShift() {
 
 		<section class="card">
 			<h3 class="card-title">あなたの勤務</h3>
-			<ul class="my-shift">
-				${me.cells
-					.map(
-						(cell) => `
-				<li${cell.dayOff ? ' class="is-off"' : ''}>
-					<span class="my-date ${weekClass(cell.date)}">${monthDayWithWeek(cell.date)}</span>
-					<span class="my-top">${cell.dayOff ? '公' : '出勤'}</span>
-					<span class="my-bottom">${esc(cell.bottom)}</span>
-				</li>`,
-					)
-					.join('')}
-			</ul>
+			<table class="my-calendar">
+				<thead>
+					<tr>${WEEK.map((w, i) => `<th${i === 0 ? ' class="sun"' : i === 6 ? ' class="sat"' : ''}>${w}</th>`).join('')}</tr>
+				</thead>
+				<tbody>
+					${calendarWeeks(me.cells)
+						.map(
+							(w) => `
+					<tr>
+						${w
+							.map((cell) =>
+								cell
+									? `<td><span class="cal-date ${weekClass(cell.date)}">${cell.date.getDate() === 1 || cell.date.getTime() === CURRENT.start.getTime() ? `${cell.date.getMonth() + 1}/${cell.date.getDate()}` : cell.date.getDate()}</span><span class="cal-mark${cell.dayOff ? ' is-off' : ''}">${cell.dayOff ? '休' : '出'}</span>${cell.locked ? '' : `<span class="cal-note">${esc(cell.bottom)}</span>`}</td>`
+									: '<td class="is-blank"></td>',
+							)
+							.join('')}
+					</tr>`,
+						)
+						.join('')}
+				</tbody>
+			</table>
 		</section>
 
 		<section class="card">
@@ -478,6 +506,9 @@ function userShift() {
 				</table>
 			</div>
 		</section>
+		<div class="download-actions">
+			<a class="btn btn-block" href="#">朝アシシフトをPDFでダウンロード（A4横）</a>
+		</div>
 	</main>`,
 	});
 }
@@ -485,14 +516,13 @@ function userShift() {
 function userRequest() {
 	const dates = periodDates(NEXT);
 	const rnd = random(7);
-	// 前半だけ入力済み（途中保存した状態）
+	// まだ選んでいない日は「出勤可能」（休み・未定だけ変える）
 	const statuses = new Map(
-		dates.slice(0, 20).map((d) => {
+		dates.map((d) => {
 			const r = rnd();
-			return [iso(d), r < 0.6 ? 'AVAILABLE' : r < 0.85 ? 'OFF' : 'UNDECIDED'];
+			return [iso(d), r < 0.75 ? 'AVAILABLE' : r < 0.92 ? 'OFF' : 'UNDECIDED'];
 		}),
 	);
-	const unanswered = dates.length - statuses.size;
 
 	return page({
 		title: '次回勤務表作成',
@@ -506,13 +536,12 @@ function userRequest() {
 			来期 <small>${NEXT.label}</small>
 		</h2>
 		<p class="hint">
-			各日に「出勤可能」「休み」「未定」を選んでください。途中で保存できます。
+			はじめはすべての日が「出勤可能」になっています。休みや未定の日だけ変えて保存してください。途中で保存できます。
 			<br>
 			<span>最終保存：10/8 21:14</span>
-			<span class="warn" data-unanswered-count${unanswered === 0 ? ' hidden' : ''}>未入力 ${unanswered}日</span>
 		</p>
 
-		<form method="post" data-request-form data-dirty-guard>
+		<form method="post" data-dirty-guard>
 			<div class="req-list">
 				${dates
 					.map(
@@ -633,7 +662,7 @@ const SCREENS = [
 	['login.html', 'ログイン', '共通', 'both', login],
 	['manager-menu.html', 'メニュー', '管理者', 'pc', () =>
 		menu('manager', [
-			['/manager/users', 'ユーザー情報管理', 'アルバイトの個人情報の作成・編集'],
+			['/manager/users', 'ユーザー情報管理', 'アルバイト・パートの個人情報の作成・編集'],
 			['/manager/shifts', 'ユーザー勤務表管理', '朝アシシフトの作成・確定・CSV出力'],
 		])],
 	['manager-users.html', '1. ユーザー情報管理', '管理者', 'pc', managerUsers],

@@ -19,17 +19,35 @@
 		<p th:unless="${sheet}" class="card empty">この期間の朝アシシフトはまだ確定していません。</p>
 
 		<th:block th:if="${sheet}">
-			<!-- 自分の勤務（スマートフォンで見やすい縦並び） -->
+			<!-- 自分の勤務（日曜始まりのカレンダー。出勤は黒字「出」、休みは赤字「休」） -->
 			<section th:if="${myRow}" class="card">
 				<h3 class="card-title">あなたの勤務</h3>
-				<ul class="my-shift">
-					<li th:each="cell : ${myRow.cells()}" th:classappend="${cell.dayOff()} ? 'is-off'">
-						<span class="my-date" th:classappend="${@dateLabels.weekClass(cell.date())}"
-							th:text="${@dateLabels.monthDayWithWeek(cell.date())}"></span>
-						<span class="my-top" th:text="${cell.dayOff()} ? '公' : '出勤'"></span>
-						<span class="my-bottom" th:text="${cell.bottom()}"></span>
-					</li>
-				</ul>
+				<table class="my-calendar">
+					<thead>
+						<tr>
+							<th class="sun">日</th>
+							<th>月</th>
+							<th>火</th>
+							<th>水</th>
+							<th>木</th>
+							<th>金</th>
+							<th class="sat">土</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="week : ${myRow.calendarWeeks()}">
+							<td th:each="cell : ${week}" th:classappend="${cell == null} ? 'is-blank'">
+								<th:block th:if="${cell}">
+									<span class="cal-date" th:classappend="${@dateLabels.weekClass(cell.date())}"
+										th:text="${cell.date().dayOfMonth == 1 or cell.date() == period.start()} ? ${cell.date().monthValue} + '/' + ${cell.date().dayOfMonth} : ${cell.date().dayOfMonth}"></span>
+									<span class="cal-mark" th:classappend="${cell.dayOff()} ? 'is-off'"
+										th:text="${cell.dayOff()} ? '休' : '出'"></span>
+									<span class="cal-note" th:unless="${cell.locked()}" th:text="${cell.bottom()}"></span>
+								</th:block>
+							</td>
+						</tr>
+					</tbody>
+				</table>
 			</section>
 
 			<!-- 全員分の朝アシシフト（横スクロール） -->
@@ -60,6 +78,9 @@
 					</table>
 				</div>
 			</section>
+			<div class="download-actions">
+				<a class="btn btn-block" th:href="${showNext} ? @{/user/shift/pdf(p='next')} : @{/user/shift/pdf}">朝アシシフトをPDFでダウンロード（A4横）</a>
+			</div>
 		</th:block>
 	</main>
 </body>

@@ -45,7 +45,7 @@ public class AccountForm {
 	@Digits(integer = 2, fraction = 1, message = "残年次有給休暇数は小数第1位までで入力してください")
 	private BigDecimal paidLeaveDays = BigDecimal.ZERO;
 
-	@NotNull
+	@NotNull(message = "役職を選んでください")
 	private Role role = Role.USER;
 
 	private Set<WorkTask> tasks = new HashSet<>();

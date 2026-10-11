@@ -4,12 +4,12 @@
 // =========================================================
 import { initConfirm } from './modules/confirm';
 import { initDirtyGuard } from './modules/dirty-guard';
-import { initRequestCounter } from './modules/request-counter';
+import { initSortable } from './modules/sortable';
 
 function init(): void {
 	initConfirm();
 	initDirtyGuard();
-	initRequestCounter();
+	initSortable();
 }
 
 if (document.readyState === 'loading') {

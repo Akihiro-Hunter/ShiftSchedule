@@ -2,6 +2,7 @@ package com.shiftschedule.web.manager;
 
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ContentDisposition;
@@ -50,10 +51,17 @@ public class ManagerShiftController {
 		return "manager/shifts";
 	}
 
+	/**
+	 * @param order ドラッグで並び替えたユーザーの順（アカウントID）
+	 */
 	@PostMapping
 	public String save(@RequestParam String start, @RequestParam(defaultValue = "save") String action,
-			@RequestParam Map<String, String> params, RedirectAttributes redirect) {
+			@RequestParam(required = false) List<Long> order, @RequestParam Map<String, String> params,
+			RedirectAttributes redirect) {
 		Period period = Period.parseOrUpcoming(start);
+		if (order != null) {
+			shiftService.saveOrder(order);
+		}
 		switch (action) {
 		case "confirm" -> {
 			shiftService.saveEntries(period, params);

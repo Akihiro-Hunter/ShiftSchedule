@@ -12,6 +12,11 @@
 		color: c(primary-dark);
 	}
 
+	&-part {
+		background: #f3e8ff;
+		color: #7a3fb8;
+	}
+
 	&-ok {
 		background: c(ok-bg);
 		color: c(ok-text);

@@ -3,6 +3,7 @@ package com.shiftschedule.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,7 @@ public class ShiftService {
 
 		List<LocalDate> dates = period.dates();
 		List<ShiftSheet.Row> rows = new ArrayList<>();
-		for (Account user : accounts.findByRoleOrderByUserNumber(Role.USER)) {
+		for (Account user : staffInOrder()) {
 			Map<LocalDate, RequestStatus> userRequests = requestMap.getOrDefault(user.getId(), Map.of());
 			Map<LocalDate, ShiftEntry> userEntries = entryMap.getOrDefault(user.getId(), Map.of());
 			List<ShiftSheet.Cell> cells = new ArrayList<>();
@@ -130,12 +131,39 @@ public class ShiftService {
 		}
 	}
 
+	/**
+	 * 朝アシシフトの並び順を保存する。
+	 *
+	 * @param accountIds 上から順に並べたアカウントID（アルバイト・パート以外は無視）
+	 */
+	public void saveOrder(List<Long> accountIds) {
+		Map<Long, Account> staff = new HashMap<>();
+		for (Account account : accounts.findByRoleIn(Role.STAFF)) {
+			staff.put(account.getId(), account);
+		}
+		int order = 0;
+		for (Long id : accountIds) {
+			Account account = staff.get(id);
+			if (account != null) {
+				account.setSortOrder(order++);
+			}
+		}
+	}
+
 	/** 確定（ユーザーに公開）または確定取消 */
 	public void setConfirmed(Period period, boolean confirmed) {
 		ShiftPeriod status = periods.findById(period.start()).orElseGet(() -> new ShiftPeriod(period.start()));
 		status.setConfirmed(confirmed);
 		status.setConfirmedAt(confirmed ? LocalDateTime.now(Period.ZONE) : null);
 		periods.save(status);
+	}
+
+	/** アルバイト・パートを朝アシシフトの並び順で（未設定の人はユーザー番号順で末尾） */
+	private List<Account> staffInOrder() {
+		List<Account> staff = new ArrayList<>(accounts.findByRoleIn(Role.STAFF));
+		staff.sort(Comparator.comparing(Account::getSortOrder, Comparator.nullsLast(Comparator.naturalOrder()))
+				.thenComparing(Account::getUserNumber));
+		return staff;
 	}
 
 	private Map<Long, Map<LocalDate, ShiftEntry>> entriesByAccount(Period period) {

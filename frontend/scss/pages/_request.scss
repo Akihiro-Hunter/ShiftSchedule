@@ -12,17 +12,11 @@
 	align-items: center;
 	justify-content: space-between;
 	gap: 8px;
-	padding: 8px 10px 8px 6px;
+	padding: 8px 10px;
 	border-bottom: 1px solid c(border);
-	border-left: 4px solid transparent;
 
 	&:last-child {
 		border-bottom: none;
-	}
-
-	// 未入力の日（TypeScript で付与）
-	&.is-unanswered {
-		border-left-color: c(seg-undecided);
 	}
 }
 

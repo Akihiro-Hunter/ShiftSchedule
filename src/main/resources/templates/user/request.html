@@ -11,14 +11,13 @@
 			来期 <small th:text="${period.label()}"></small>
 		</h2>
 		<p class="hint">
-			各日に「出勤可能」「休み」「未定」を選んでください。途中で保存できます。
+			はじめはすべての日が「出勤可能」になっています。休みや未定の日だけ変えて保存してください。途中で保存できます。
 			<br>
 			<span th:if="${updatedAt}" th:text="'最終保存：' + ${#temporals.format(updatedAt, 'M/d HH:mm')}"></span>
-			<span class="warn" data-unanswered-count th:hidden="${unansweredCount == 0}"
-				th:text="'未入力 ' + ${unansweredCount} + '日'"></span>
+			<span class="warn" th:unless="${updatedAt}">まだ保存していません</span>
 		</p>
 
-		<form th:action="@{/user/request}" method="post" data-request-form data-dirty-guard>
+		<form th:action="@{/user/request}" method="post" data-dirty-guard>
 			<div class="req-list">
 				<div class="req-day" th:each="d : ${period.dates()}" th:with="cur=${statuses.get(d)}">
 					<span class="req-date" th:classappend="${@dateLabels.weekClass(d)}"

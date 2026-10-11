@@ -95,7 +95,7 @@ public class ManagerUserController {
 		} else if (password != null && !password.isEmpty() && !AccountRules.isValidPassword(password)) {
 			result.rejectValue("password", "pattern", AccountRules.PASSWORD_MESSAGE);
 		}
-		if (form.getRole() == Role.USER) {
+		if (form.getRole().isStaff()) {
 			if (form.getBirthDate() == null) {
 				result.rejectValue("birthDate", "required", "生年月日を入力してください");
 			}
@@ -104,7 +104,7 @@ public class ManagerUserController {
 			}
 		}
 		if (Objects.equals(form.getId(), login.getId()) && form.getRole() != Role.MANAGER) {
-			result.rejectValue("role", "self", "ログイン中の管理者自身の権限は変更できません");
+			result.rejectValue("role", "self", "ログイン中の管理者自身の役職は変更できません");
 		}
 	}
 }

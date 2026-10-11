@@ -1,33 +1,71 @@
 @use '../abstracts' as *;
 
-// 勤務表確認：自分の勤務（スマートフォンで見やすい縦並び）
-.my-shift {
-	list-style: none;
-	margin: 0;
-	padding: 0;
+// 勤務表確認：自分の勤務（日曜始まりのカレンダー）
+// 出勤は黒字「出」、休みは赤字「休」
+.my-calendar {
+	width: 100%;
+	table-layout: fixed;
+	border-collapse: collapse;
 
-	li {
-		display: grid;
-		grid-template-columns: 90px 50px 1fr;
-		align-items: center;
-		padding: 8px 4px;
-		border-bottom: 1px solid c(border);
+	th {
+		padding: 4px 0;
+		font-size: 12px;
+		font-weight: 700;
+		color: c(muted);
+	}
 
-		&:last-child {
-			border-bottom: none;
+	td {
+		height: 64px;
+		padding: 4px 2px;
+		border: 1px solid c(border);
+		text-align: center;
+		vertical-align: top;
+
+		@include sp {
+			height: 58px;
 		}
 
-		&.is-off {
-			background: #f7f8f9;
-			color: c(muted);
-
-			.my-top {
-				color: c(danger);
-			}
+		&.is-blank {
+			background: c(surface-sub);
 		}
+	}
+
+	.sat {
+		color: c(sat);
+	}
+
+	.sun {
+		color: c(sun);
 	}
 }
 
-.my-top {
+.cal-date {
+	display: block;
+	font-size: 12px;
+	color: c(muted);
+}
+
+.cal-mark {
+	display: block;
+	font-size: 18px;
 	font-weight: 700;
+	line-height: 1.4;
+	color: c(text);
+
+	&.is-off {
+		color: c(danger);
+	}
+}
+
+// 下段（作業など）。マスが狭いので小さく1行で
+.cal-note {
+	display: block;
+	font-size: 10px;
+	color: c(muted);
+	@include ellipsis;
+}
+
+// 朝アシシフトの下（枠外）のダウンロードボタン
+.download-actions {
+	margin: -4px 0 16px;
 }

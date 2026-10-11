@@ -26,7 +26,7 @@
 			</label>
 
 			<label class="form-row">
-				<span class="form-label">権限</span>
+				<span class="form-label">役職</span>
 				<select th:field="*{role}">
 					<option th:each="r : ${allRoles}" th:value="${r}" th:text="${r.label}"></option>
 				</select>
@@ -45,7 +45,7 @@
 					<span class="field-error" th:if="${#fields.hasErrors('hireDate')}" th:errors="*{hireDate}"></span>
 				</label>
 			</div>
-			<p class="hint">アルバイトの場合、生年月日と入社日は必須です</p>
+			<p class="hint">アルバイト・パートの場合、生年月日と入社日は必須です</p>
 
 			<label class="form-row">
 				<span class="form-label">残年次有給休暇数（日）</span>

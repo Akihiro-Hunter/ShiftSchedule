@@ -146,6 +146,7 @@ small {
   color: var(--text);
   font: inherit;
   text-decoration: none;
+  text-align: center;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -202,6 +203,10 @@ small {
 .badge-manager {
   background: #e5edff;
   color: var(--primary-dark);
+}
+.badge-part {
+  background: #f3e8ff;
+  color: #7a3fb8;
 }
 .badge-ok {
   background: var(--ok-bg);
@@ -599,6 +604,36 @@ textarea:focus {
   border-bottom: 2px solid var(--border-strong);
 }
 
+.sheet-name-inner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.drag-handle {
+  flex: none;
+  padding: 2px;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: grab;
+  user-select: none;
+}
+.drag-handle:hover {
+  color: var(--primary);
+}
+
+.drag-handle-sample {
+  color: var(--muted);
+}
+
+.sheet-user.is-dragging {
+  opacity: 0.4;
+}
+.sheet-user.is-moved .sheet-name {
+  box-shadow: inset 4px 0 0 var(--seg-undecided);
+}
+
 .remark-text {
   white-space: pre-wrap;
   word-break: break-all;
@@ -685,31 +720,67 @@ textarea:focus {
   background: var(--primary-soft);
 }
 
-.my-shift {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.my-calendar {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
 }
-.my-shift li {
-  display: grid;
-  grid-template-columns: 90px 50px 1fr;
-  align-items: center;
-  padding: 8px 4px;
-  border-bottom: 1px solid var(--border);
-}
-.my-shift li:last-child {
-  border-bottom: none;
-}
-.my-shift li.is-off {
-  background: #f7f8f9;
+.my-calendar th {
+  padding: 4px 0;
+  font-size: 12px;
+  font-weight: 700;
   color: var(--muted);
 }
-.my-shift li.is-off .my-top {
+.my-calendar td {
+  height: 64px;
+  padding: 4px 2px;
+  border: 1px solid var(--border);
+  text-align: center;
+  vertical-align: top;
+}
+@media (max-width: 600px) {
+  .my-calendar td {
+    height: 58px;
+  }
+}
+.my-calendar td.is-blank {
+  background: var(--surface-sub);
+}
+.my-calendar .sat {
+  color: var(--sat);
+}
+.my-calendar .sun {
+  color: var(--sun);
+}
+
+.cal-date {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.cal-mark {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+.cal-mark.is-off {
   color: var(--danger);
 }
 
-.my-top {
-  font-weight: 700;
+.cal-note {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.download-actions {
+  margin: -4px 0 16px;
 }
 
 .req-list {
@@ -725,15 +796,11 @@ textarea:focus {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 8px 10px 8px 6px;
+  padding: 8px 10px;
   border-bottom: 1px solid var(--border);
-  border-left: 4px solid transparent;
 }
 .req-day:last-child {
   border-bottom: none;
-}
-.req-day.is-unanswered {
-  border-left-color: var(--seg-undecided);
 }
 
 .req-date {

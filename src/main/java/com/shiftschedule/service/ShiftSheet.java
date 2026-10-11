@@ -2,6 +2,8 @@ package com.shiftschedule.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.shiftschedule.domain.Period;
@@ -22,6 +24,27 @@ public record ShiftSheet(Period period, List<LocalDate> dates, List<Row> rows, b
 	 */
 	public record Row(Long accountId, String userNumber, String name, List<Cell> cells, String requestNote,
 			LocalDateTime requestUpdatedAt) {
+
+		/**
+		 * 日曜始まりのカレンダー表示用に、1週7マスずつに区切る。
+		 * 期間の前後で埋まらないマスは null。
+		 */
+		public List<List<Cell>> calendarWeeks() {
+			List<Cell> slots = new ArrayList<>();
+			if (!cells.isEmpty()) {
+				// getValue() は月曜=1〜日曜=7。日曜を0にした数だけ先頭を空ける
+				slots.addAll(Collections.nCopies(cells.getFirst().date().getDayOfWeek().getValue() % 7, null));
+			}
+			slots.addAll(cells);
+			while (slots.size() % 7 != 0) {
+				slots.add(null);
+			}
+			List<List<Cell>> weeks = new ArrayList<>();
+			for (int i = 0; i < slots.size(); i += 7) {
+				weeks.add(slots.subList(i, i + 7));
+			}
+			return weeks;
+		}
 	}
 
 	/**

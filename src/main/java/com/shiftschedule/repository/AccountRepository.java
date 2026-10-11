@@ -1,5 +1,6 @@
 package com.shiftschedule.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,5 +19,5 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
 	List<Account> findAllByOrderByUserNumber();
 
-	List<Account> findByRoleOrderByUserNumber(Role role);
+	List<Account> findByRoleIn(Collection<Role> roles);
 }

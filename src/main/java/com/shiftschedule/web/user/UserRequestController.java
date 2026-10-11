@@ -35,7 +35,11 @@ public class UserRequestController {
 	@GetMapping
 	public String show(@AuthenticationPrincipal LoginAccount login, Model model) {
 		Period period = Period.upcoming();
-		Map<LocalDate, RequestStatus> statuses = requestService.findStatuses(login.getId(), period);
+		// まだ選んでいない日は「出勤可能」を選んだ状態で表示する
+		Map<LocalDate, RequestStatus> statuses = new HashMap<>(requestService.findStatuses(login.getId(), period));
+		for (LocalDate date : period.dates()) {
+			statuses.putIfAbsent(date, RequestStatus.AVAILABLE);
+		}
 		ShiftRequestNote note = requestService.findNote(login.getId(), period).orElse(null);
 
 		model.addAttribute("period", period);
@@ -43,7 +47,6 @@ public class UserRequestController {
 		model.addAttribute("allStatuses", RequestStatus.values());
 		model.addAttribute("note", note == null ? "" : note.getNote());
 		model.addAttribute("updatedAt", note == null ? null : note.getUpdatedAt());
-		model.addAttribute("unansweredCount", period.dates().size() - statuses.size());
 		model.addAttribute("noteMaxLength", ShiftRequestNote.NOTE_MAX_LENGTH);
 		return "user/request";
 	}

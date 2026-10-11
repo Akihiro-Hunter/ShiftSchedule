@@ -16,7 +16,7 @@
 					<tr>
 						<th>ユーザー番号</th>
 						<th>氏名</th>
-						<th>権限</th>
+						<th>役職</th>
 						<th>生年月日</th>
 						<th>入社日</th>
 						<th class="num">残有給</th>
@@ -28,7 +28,7 @@
 					<tr th:each="a : ${accounts}">
 						<td th:text="${a.userNumber}"></td>
 						<td th:text="${a.name}"></td>
-						<td><span class="badge" th:classappend="${a.role.name() == 'MANAGER'} ? 'badge-manager'"
+						<td><span class="badge" th:classappend="${a.role.name() == 'MANAGER'} ? 'badge-manager' : (${a.role.name() == 'PART'} ? 'badge-part')"
 								th:text="${a.role.label}"></span></td>
 						<td th:text="${a.birthDate} ? ${#temporals.format(a.birthDate, 'yyyy/MM/dd')}"></td>
 						<td th:text="${a.hireDate} ? ${#temporals.format(a.hireDate, 'yyyy/MM/dd')}"></td>

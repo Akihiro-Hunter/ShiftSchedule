@@ -46,9 +46,13 @@ public class Account {
 	@Column(nullable = false, precision = 4, scale = 1)
 	private BigDecimal paidLeaveDays = BigDecimal.ZERO;
 
+	/** 役職 */
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false, length = 20)
 	private Role role;
+
+	/** 朝アシシフトでの並び順（管理者がドラッグで並び替える。未設定はユーザー番号順で末尾） */
+	private Integer sortOrder;
 
 	/** 可能作業 */
 	@ElementCollection(fetch = FetchType.EAGER)
@@ -115,6 +119,14 @@ public class Account {
 
 	public void setRole(Role role) {
 		this.role = role;
+	}
+
+	public Integer getSortOrder() {
+		return sortOrder;
+	}
+
+	public void setSortOrder(Integer sortOrder) {
+		this.sortOrder = sortOrder;
 	}
 
 	public Set<WorkTask> getTasks() {

@@ -33,13 +33,14 @@
 			</span>
 		</div>
 		<p class="hint">上段のマスをクリックすると「公」（休み）と空白（出勤）が切り替わります。下段には自由に入力できます（<span
-				th:text="${noteMaxLength}"></span>文字まで）。</p>
+				th:text="${noteMaxLength}"></span>文字まで）。<br>
+			氏名の左の <span class="drag-handle-sample">⠿</span> をドラッグ（または ↑↓ キー）すると並び順を変えられます（保存で反映され、ユーザーの勤務表確認・CSV・PDFも同じ順になります）。</p>
 
 		<form th:action="@{/manager/shifts}" method="post" id="shift-form" data-dirty-guard>
 			<input type="hidden" name="start" th:value="${period.start()}">
 
 			<div class="sheet-wrap">
-				<table class="sheet">
+				<table class="sheet" data-sortable>
 					<thead>
 						<tr>
 							<th class="sheet-name">氏名</th>
@@ -49,42 +50,50 @@
 							<th class="sheet-remark">備考（ユーザー入力）</th>
 						</tr>
 					</thead>
-					<tbody>
-						<th:block th:each="row : ${sheet.rows()}">
-							<tr class="sheet-top">
-								<th class="sheet-name" rowspan="2">
-									<span th:text="${row.name()}"></span><br>
-									<small th:text="${row.userNumber()}"></small>
-								</th>
-								<td th:each="cell : ${row.cells()}"
-									th:class="'req-' + (${cell.request()} ? ${#strings.toLowerCase(cell.request().name())} : 'none')"
-									th:title="${cell.request()} ? ${cell.request().label} : '未入力'">
-									<span th:if="${cell.locked()}" class="mark mark-locked">公</span>
-									<label th:unless="${cell.locked()}" class="off-toggle">
-										<input type="checkbox" th:name="'off_' + ${cell.key(row.accountId())}"
-											th:checked="${cell.dayOff()}">
-										<span>公</span>
-									</label>
-								</td>
-								<td class="sheet-remark" rowspan="2">
-									<div class="remark-text" th:text="${row.requestNote()}"></div>
-									<small class="muted" th:if="${row.requestUpdatedAt()}"
-										th:text="'更新 ' + ${#temporals.format(row.requestUpdatedAt(), 'M/d HH:mm')}"></small>
-									<small class="muted" th:unless="${row.requestUpdatedAt()}">未提出</small>
-								</td>
-							</tr>
-							<tr class="sheet-bottom">
-								<td th:each="cell : ${row.cells()}"
-									th:class="'req-' + (${cell.request()} ? ${#strings.toLowerCase(cell.request().name())} : 'none')">
-									<span th:if="${cell.locked()}" class="mark mark-locked">希</span>
-									<input th:unless="${cell.locked()}" type="text" class="note-input"
-										th:name="'note_' + ${cell.key(row.accountId())}" th:value="${cell.bottom()}"
-										th:maxlength="${noteMaxLength}">
-								</td>
-							</tr>
-						</th:block>
-						<tr th:if="${#lists.isEmpty(sheet.rows())}">
-							<td th:colspan="${sheet.dates().size() + 2}" class="empty">アルバイトのユーザーが登録されていません</td>
+					<!-- 1ユーザー（上段・下段）を1つの tbody にまとめ、tbody ごとにドラッグで並び替える -->
+					<tbody th:each="row : ${sheet.rows()}" class="sheet-user" data-sortable-item>
+						<tr class="sheet-top">
+							<th class="sheet-name" rowspan="2">
+								<div class="sheet-name-inner">
+									<span class="drag-handle" draggable="true" data-sortable-handle tabindex="0"
+											title="ドラッグ（または ↑↓ キー）で並び替え" aria-label="並び替え">⠿</span>
+									<div>
+										<span th:text="${row.name()}"></span><br>
+										<small th:text="${row.userNumber()}"></small>
+									</div>
+								</div>
+								<input type="hidden" name="order" th:value="${row.accountId()}">
+							</th>
+							<td th:each="cell : ${row.cells()}"
+								th:class="'req-' + (${cell.request()} ? ${#strings.toLowerCase(cell.request().name())} : 'none')"
+								th:title="${cell.request()} ? ${cell.request().label} : '未入力'">
+								<span th:if="${cell.locked()}" class="mark mark-locked">公</span>
+								<label th:unless="${cell.locked()}" class="off-toggle">
+									<input type="checkbox" th:name="'off_' + ${cell.key(row.accountId())}"
+										th:checked="${cell.dayOff()}">
+									<span>公</span>
+								</label>
+							</td>
+							<td class="sheet-remark" rowspan="2">
+								<div class="remark-text" th:text="${row.requestNote()}"></div>
+								<small class="muted" th:if="${row.requestUpdatedAt()}"
+									th:text="'更新 ' + ${#temporals.format(row.requestUpdatedAt(), 'M/d HH:mm')}"></small>
+								<small class="muted" th:unless="${row.requestUpdatedAt()}">未提出</small>
+							</td>
+						</tr>
+						<tr class="sheet-bottom">
+							<td th:each="cell : ${row.cells()}"
+								th:class="'req-' + (${cell.request()} ? ${#strings.toLowerCase(cell.request().name())} : 'none')">
+								<span th:if="${cell.locked()}" class="mark mark-locked">希</span>
+								<input th:unless="${cell.locked()}" type="text" class="note-input"
+									th:name="'note_' + ${cell.key(row.accountId())}" th:value="${cell.bottom()}"
+									th:maxlength="${noteMaxLength}">
+							</td>
+						</tr>
+					</tbody>
+					<tbody th:if="${#lists.isEmpty(sheet.rows())}">
+						<tr>
+							<td th:colspan="${sheet.dates().size() + 2}" class="empty">アルバイト・パートのユーザーが登録されていません</td>
 						</tr>
 					</tbody>
 				</table>

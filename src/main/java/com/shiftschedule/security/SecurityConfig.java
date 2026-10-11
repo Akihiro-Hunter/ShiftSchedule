@@ -1,5 +1,7 @@
 package com.shiftschedule.security;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -17,7 +19,7 @@ import com.shiftschedule.repository.AccountRepository;
 
 /**
  * 管理者（/manager）とアルバイト（/user）で入口を分けたログイン設定。
- * それぞれの入口では、その権限を持つアカウントしかログインできない。
+ * それぞれの入口では、その役職のアカウントしかログインできない（/user はアルバイトとパート）。
  */
 @Configuration
 @EnableWebSecurity
@@ -30,26 +32,26 @@ public class SecurityConfig {
 
 	@Bean
 	DaoAuthenticationProvider managerAuthenticationProvider(AccountRepository accounts, PasswordEncoder encoder) {
-		return authenticationProvider(accounts, encoder, Role.MANAGER);
+		return authenticationProvider(accounts, encoder, List.of(Role.MANAGER));
 	}
 
 	@Bean
 	DaoAuthenticationProvider userAuthenticationProvider(AccountRepository accounts, PasswordEncoder encoder) {
-		return authenticationProvider(accounts, encoder, Role.USER);
+		return authenticationProvider(accounts, encoder, Role.STAFF);
 	}
 
 	@Bean
 	@Order(1)
 	SecurityFilterChain managerFilterChain(HttpSecurity http, DaoAuthenticationProvider managerAuthenticationProvider)
 			throws Exception {
-		return areaFilterChain(http, "/manager", Role.MANAGER, managerAuthenticationProvider);
+		return areaFilterChain(http, "/manager", List.of(Role.MANAGER), managerAuthenticationProvider);
 	}
 
 	@Bean
 	@Order(2)
 	SecurityFilterChain userFilterChain(HttpSecurity http, DaoAuthenticationProvider userAuthenticationProvider)
 			throws Exception {
-		return areaFilterChain(http, "/user", Role.USER, userAuthenticationProvider);
+		return areaFilterChain(http, "/user", Role.STAFF, userAuthenticationProvider);
 	}
 
 	/** /manager・/user 以外（トップページ、CSS など） */
@@ -63,23 +65,23 @@ public class SecurityConfig {
 	}
 
 	private static DaoAuthenticationProvider authenticationProvider(AccountRepository accounts,
-			PasswordEncoder encoder, Role role) {
+			PasswordEncoder encoder, List<Role> roles) {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userNumber -> accounts
 				.findByUserNumber(userNumber)
-				.filter(account -> account.getRole() == role)
+				.filter(account -> roles.contains(account.getRole()))
 				.map(LoginAccount::new)
 				.orElseThrow(() -> new UsernameNotFoundException(userNumber)));
 		provider.setPasswordEncoder(encoder);
 		return provider;
 	}
 
-	private static SecurityFilterChain areaFilterChain(HttpSecurity http, String base, Role role,
+	private static SecurityFilterChain areaFilterChain(HttpSecurity http, String base, List<Role> roles,
 			DaoAuthenticationProvider provider) throws Exception {
 		http.securityMatcher(base + "/**")
 				.authenticationManager(new ProviderManager(provider))
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers(base + "/login").permitAll()
-						.anyRequest().hasRole(role.name()))
+						.anyRequest().hasAnyRole(roles.stream().map(Role::name).toArray(String[]::new)))
 				.formLogin(form -> form
 						.loginPage(base + "/login")
 						.usernameParameter("userNumber")
@@ -88,8 +90,8 @@ public class SecurityConfig {
 						.failureUrl(base + "/login?error"))
 				.logout(logout -> logout
 						.logoutUrl(base + "/logout")
-						.logoutSuccessUrl(base + "/login?logout"))
-				// 別の権限でログイン中に入った場合は、この入口のログイン画面へ
+						.logoutSuccessUrl(base + "/login"))
+				// 別の役職でログイン中に入った場合は、この入口のログイン画面へ
 				.exceptionHandling(ex -> ex.accessDeniedHandler(
 						(request, response, e) -> response.sendRedirect(request.getContextPath() + base + "/login")));
 		return http.build();

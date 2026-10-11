@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('メニュー')}"></head>
+<body class="manager">
+	<header th:replace="~{fragments/layout :: header('メニュー', 'manager')}"></header>
+	<main class="container">
+		<nav class="menu">
+			<a class="menu-item" th:href="@{/manager/users}">
+				<span class="menu-no">1</span>
+				<span class="menu-text">ユーザー情報管理</span>
+				<span class="menu-desc">アルバイトの個人情報の作成・編集</span>
+			</a>
+			<a class="menu-item" th:href="@{/manager/shifts}">
+				<span class="menu-no">2</span>
+				<span class="menu-text">ユーザー勤務表管理</span>
+				<span class="menu-desc">朝アシシフトの作成・確定・CSV出力</span>
+			</a>
+		</nav>
+	</main>
+</body>
+</html>

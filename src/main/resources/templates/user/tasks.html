@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('可能作業')}"></head>
+<body class="user">
+	<header th:replace="~{fragments/layout :: header('可能作業', 'user')}"></header>
+	<main class="container">
+		<a th:replace="~{fragments/layout :: back('user')}"></a>
+		<div th:replace="~{fragments/layout :: messages}"></div>
+
+		<form th:action="@{/user/tasks}" method="post" class="card">
+			<p class="hint">できる作業にチェックを入れて保存してください。</p>
+			<div class="check-list">
+				<label class="check check-large" th:each="t : ${allTasks}">
+					<input type="checkbox" name="tasks" th:value="${t}" th:checked="${tasks.contains(t)}">
+					<span th:text="${t.label}"></span>
+				</label>
+			</div>
+			<button type="submit" class="btn btn-primary btn-block">保存</button>
+		</form>
+	</main>
+</body>
+</html>

@@ -1,0 +1,144 @@
+package com.shiftschedule.domain;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
+
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Table;
+
+/** 管理者・アルバイトのアカウントと個人情報 */
+@Entity
+@Table(name = "accounts")
+public class Account {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+
+	/** ユーザー番号（半角数字8桁） */
+	@Column(name = "user_number", nullable = false, unique = true, length = 8)
+	private String userNumber;
+
+	/** パスワード（ハッシュ化して保存） */
+	@Column(nullable = false)
+	private String password;
+
+	@Column(nullable = false, length = 50)
+	private String name;
+
+	private LocalDate birthDate;
+
+	private LocalDate hireDate;
+
+	/** 残年次有給休暇数（0.5日単位） */
+	@Column(nullable = false, precision = 4, scale = 1)
+	private BigDecimal paidLeaveDays = BigDecimal.ZERO;
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false, length = 20)
+	private Role role;
+
+	/** 可能作業 */
+	@ElementCollection(fetch = FetchType.EAGER)
+	@CollectionTable(name = "account_tasks", joinColumns = @JoinColumn(name = "account_id"))
+	@Enumerated(EnumType.STRING)
+	@Column(name = "task", length = 20)
+	private Set<WorkTask> tasks = new HashSet<>();
+
+	public Long getId() {
+		return id;
+	}
+
+	public String getUserNumber() {
+		return userNumber;
+	}
+
+	public void setUserNumber(String userNumber) {
+		this.userNumber = userNumber;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public LocalDate getBirthDate() {
+		return birthDate;
+	}
+
+	public void setBirthDate(LocalDate birthDate) {
+		this.birthDate = birthDate;
+	}
+
+	public LocalDate getHireDate() {
+		return hireDate;
+	}
+
+	public void setHireDate(LocalDate hireDate) {
+		this.hireDate = hireDate;
+	}
+
+	public BigDecimal getPaidLeaveDays() {
+		return paidLeaveDays;
+	}
+
+	public void setPaidLeaveDays(BigDecimal paidLeaveDays) {
+		this.paidLeaveDays = paidLeaveDays;
+	}
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+
+	public Set<WorkTask> getTasks() {
+		return tasks;
+	}
+
+	public void setTasks(Set<WorkTask> tasks) {
+		this.tasks.clear();
+		if (tasks != null) {
+			this.tasks.addAll(tasks);
+		}
+	}
+
+	/** 可能作業を表示順（WorkTaskの定義順）で並べた名称 */
+	public String getTasksLabel() {
+		StringBuilder sb = new StringBuilder();
+		for (WorkTask task : WorkTask.values()) {
+			if (tasks.contains(task)) {
+				if (!sb.isEmpty()) {
+					sb.append("、");
+				}
+				sb.append(task.getLabel());
+			}
+		}
+		return sb.toString();
+	}
+}

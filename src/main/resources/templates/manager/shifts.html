@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('ユーザー勤務表管理')}"></head>
+<body class="manager">
+	<header th:replace="~{fragments/layout :: header('ユーザー勤務表管理', 'manager')}"></header>
+	<main class="container container-wide">
+		<div class="toolbar">
+			<a th:replace="~{fragments/layout :: back('manager')}"></a>
+			<div class="period-nav">
+				<a class="btn btn-small" th:href="@{/manager/shifts(start=${period.previous().start()})}">← 前期</a>
+				<span class="period-label">
+					<span th:text="${period.label()}"></span>
+					<span class="badge" th:if="${period == currentPeriod}">今期</span>
+					<span class="badge" th:if="${period == currentPeriod.next()}">来期</span>
+				</span>
+				<a class="btn btn-small" th:href="@{/manager/shifts(start=${period.next().start()})}">次期 →</a>
+			</div>
+			<a class="btn" th:href="@{/manager/shifts/csv(start=${period.start()})}">CSV出力</a>
+		</div>
+		<div th:replace="~{fragments/layout :: messages}"></div>
+
+		<div class="shift-status">
+			<span th:if="${sheet.confirmed}" class="badge badge-ok">確定済み（ユーザーに公開中）</span>
+			<span th:if="${sheet.confirmed}" class="muted"
+				th:text="${#temporals.format(sheet.confirmedAt, 'M/d HH:mm')} + ' 確定'"></span>
+			<span th:unless="${sheet.confirmed}" class="badge badge-warn">未確定（ユーザーには非公開）</span>
+			<span class="legend">
+				ユーザーの希望：
+				<span class="legend-item req-available">出勤可能</span>
+				<span class="legend-item req-undecided">未定</span>
+				<span class="legend-item req-off">休み（変更不可）</span>
+				<span class="legend-item req-none">未入力</span>
+			</span>
+		</div>
+		<p class="hint">上段のマスをクリックすると「公」（休み）と空白（出勤）が切り替わります。下段には自由に入力できます（<span
+				th:text="${noteMaxLength}"></span>文字まで）。</p>
+
+		<form th:action="@{/manager/shifts}" method="post" id="shift-form">
+			<input type="hidden" name="start" th:value="${period.start()}">
+
+			<div class="sheet-wrap">
+				<table class="sheet">
+					<thead>
+						<tr>
+							<th class="sheet-name">氏名</th>
+							<th th:each="d : ${sheet.dates()}" class="sheet-date" th:classappend="${@dateLabels.weekClass(d)}">
+								<span th:text="${d.dayOfMonth}"></span><br><small th:text="${@dateLabels.week(d)}"></small>
+							</th>
+							<th class="sheet-remark">備考（ユーザー入力）</th>
+						</tr>
+					</thead>
+					<tbody>
+						<th:block th:each="row : ${sheet.rows()}">
+							<tr class="sheet-top">
+								<th class="sheet-name" rowspan="2">
+									<span th:text="${row.name()}"></span><br>
+									<small th:text="${row.userNumber()}"></small>
+								</th>
+								<td th:each="cell : ${row.cells()}"
+									th:class="'req-' + (${cell.request()} ? ${#strings.toLowerCase(cell.request().name())} : 'none')"
+									th:title="${cell.request()} ? ${cell.request().label} : '未入力'">
+									<span th:if="${cell.locked()}" class="mark mark-locked">公</span>
+									<label th:unless="${cell.locked()}" class="off-toggle">
+										<input type="checkbox" th:name="'off_' + ${cell.key(row.accountId())}"
+											th:checked="${cell.dayOff()}">
+										<span>公</span>
+									</label>
+								</td>
+								<td class="sheet-remark" rowspan="2">
+									<div class="remark-text" th:text="${row.requestNote()}"></div>
+									<small class="muted" th:if="${row.requestUpdatedAt()}"
+										th:text="'更新 ' + ${#temporals.format(row.requestUpdatedAt(), 'M/d HH:mm')}"></small>
+									<small class="muted" th:unless="${row.requestUpdatedAt()}">未提出</small>
+								</td>
+							</tr>
+							<tr class="sheet-bottom">
+								<td th:each="cell : ${row.cells()}"
+									th:class="'req-' + (${cell.request()} ? ${#strings.toLowerCase(cell.request().name())} : 'none')">
+									<span th:if="${cell.locked()}" class="mark mark-locked">希</span>
+									<input th:unless="${cell.locked()}" type="text" class="note-input"
+										th:name="'note_' + ${cell.key(row.accountId())}" th:value="${cell.bottom()}"
+										th:maxlength="${noteMaxLength}">
+								</td>
+							</tr>
+						</th:block>
+						<tr th:if="${#lists.isEmpty(sheet.rows())}">
+							<td th:colspan="${sheet.dates().size() + 2}" class="empty">アルバイトのユーザーが登録されていません</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="form-actions">
+				<button th:unless="${sheet.confirmed}" type="submit" name="action" value="save" class="btn">途中保存</button>
+				<button th:unless="${sheet.confirmed}" type="submit" name="action" value="confirm" class="btn btn-primary"
+					onclick="return confirm('保存して確定します。確定するとユーザーの勤務表確認に表示されます。よろしいですか？')">保存して確定</button>
+				<button th:if="${sheet.confirmed}" type="submit" name="action" value="save" class="btn btn-primary">保存（公開中の内容を更新）</button>
+				<button th:if="${sheet.confirmed}" type="submit" name="action" value="unconfirm" class="btn btn-danger"
+					onclick="return confirm('確定を取り消すと、ユーザーには表示されなくなります。よろしいですか？')">確定取消</button>
+			</div>
+		</form>
+	</main>
+</body>
+</html>

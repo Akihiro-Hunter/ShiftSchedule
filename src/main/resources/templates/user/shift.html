@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('勤務表確認')}"></head>
+<body class="user">
+	<header th:replace="~{fragments/layout :: header('勤務表確認', 'user')}"></header>
+	<main class="container">
+		<a th:replace="~{fragments/layout :: back('user')}"></a>
+
+		<div class="tabs" th:if="${nextConfirmed}">
+			<a class="tab" th:classappend="${!showNext} ? 'tab-active'" th:href="@{/user/shift}">今期</a>
+			<a class="tab" th:classappend="${showNext} ? 'tab-active'" th:href="@{/user/shift(p='next')}">来期</a>
+		</div>
+
+		<h2 class="section-title">
+			<span th:text="${showNext} ? '来期' : '今期'"></span>
+			<small th:text="${period.label()}"></small>
+		</h2>
+
+		<p th:unless="${sheet}" class="card empty">この期間の朝アシシフトはまだ確定していません。</p>
+
+		<th:block th:if="${sheet}">
+			<!-- 自分の勤務（スマートフォンで見やすい縦並び） -->
+			<section th:if="${myRow}" class="card">
+				<h3 class="card-title">あなたの勤務</h3>
+				<ul class="my-shift">
+					<li th:each="cell : ${myRow.cells()}" th:classappend="${cell.dayOff()} ? 'is-off'">
+						<span class="my-date" th:classappend="${@dateLabels.weekClass(cell.date())}"
+							th:text="${@dateLabels.monthDayWithWeek(cell.date())}"></span>
+						<span class="my-top" th:text="${cell.dayOff()} ? '公' : '出勤'"></span>
+						<span class="my-bottom" th:text="${cell.bottom()}"></span>
+					</li>
+				</ul>
+			</section>
+
+			<!-- 全員分の朝アシシフト（横スクロール） -->
+			<section class="card">
+				<h3 class="card-title">朝アシシフト（全員）</h3>
+				<p class="hint">横にスクロールできます</p>
+				<div class="sheet-wrap">
+					<table class="sheet sheet-readonly">
+						<thead>
+							<tr>
+								<th class="sheet-name">氏名</th>
+								<th th:each="d : ${sheet.dates()}" class="sheet-date" th:classappend="${@dateLabels.weekClass(d)}">
+									<span th:text="${d.dayOfMonth}"></span><br><small th:text="${@dateLabels.week(d)}"></small>
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<th:block th:each="row : ${sheet.rows()}">
+								<tr class="sheet-top" th:classappend="${myRow != null and row.accountId() == myRow.accountId()} ? 'is-me'">
+									<th class="sheet-name" rowspan="2" th:text="${row.name()}"></th>
+									<td th:each="cell : ${row.cells()}" th:text="${cell.top()}"></td>
+								</tr>
+								<tr class="sheet-bottom" th:classappend="${myRow != null and row.accountId() == myRow.accountId()} ? 'is-me'">
+									<td th:each="cell : ${row.cells()}" th:text="${cell.bottom()}"></td>
+								</tr>
+							</th:block>
+						</tbody>
+					</table>
+				</div>
+			</section>
+		</th:block>
+	</main>
+</body>
+</html>

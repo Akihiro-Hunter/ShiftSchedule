@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('ログイン')}"></head>
+<body class="login-page">
+	<main class="login-box">
+		<h1 class="login-title">朝アシシフト</h1>
+
+		<p class="flash flash-error" th:if="${param.error}">ユーザー番号またはパスワードが正しくありません</p>
+		<p class="flash flash-ok" th:if="${param.logout}">ログアウトしました</p>
+
+		<!-- 見た目は共通。送信先だけ /manager/login と /user/login で異なる -->
+		<form th:action="@{'/' + ${area} + '/login'}" method="post" class="form">
+			<label class="form-row">
+				<span class="form-label">ユーザー番号</span>
+				<input type="text" name="userNumber" inputmode="numeric" maxlength="8" pattern="\d{8}"
+					title="半角数字8桁" autocomplete="username" required autofocus>
+			</label>
+			<label class="form-row">
+				<span class="form-label">パスワード</span>
+				<input type="password" name="password" pattern="[A-Za-z0-9]{8,}"
+					title="半角英数字8文字以上" autocomplete="current-password" required>
+			</label>
+			<button type="submit" class="btn btn-primary btn-block">ログイン</button>
+		</form>
+	</main>
+</body>
+</html>

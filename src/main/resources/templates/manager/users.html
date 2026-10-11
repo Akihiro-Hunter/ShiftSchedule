@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('ユーザー情報管理')}"></head>
+<body class="manager">
+	<header th:replace="~{fragments/layout :: header('ユーザー情報管理', 'manager')}"></header>
+	<main class="container">
+		<div class="toolbar">
+			<a th:replace="~{fragments/layout :: back('manager')}"></a>
+			<a class="btn btn-primary" th:href="@{/manager/users/new}">＋ 新規作成</a>
+		</div>
+		<div th:replace="~{fragments/layout :: messages}"></div>
+
+		<div class="table-wrap">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>ユーザー番号</th>
+						<th>氏名</th>
+						<th>権限</th>
+						<th>生年月日</th>
+						<th>入社日</th>
+						<th class="num">残有給</th>
+						<th>可能作業</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="a : ${accounts}">
+						<td th:text="${a.userNumber}"></td>
+						<td th:text="${a.name}"></td>
+						<td><span class="badge" th:classappend="${a.role.name() == 'MANAGER'} ? 'badge-manager'"
+								th:text="${a.role.label}"></span></td>
+						<td th:text="${a.birthDate} ? ${#temporals.format(a.birthDate, 'yyyy/MM/dd')}"></td>
+						<td th:text="${a.hireDate} ? ${#temporals.format(a.hireDate, 'yyyy/MM/dd')}"></td>
+						<td class="num" th:text="${a.paidLeaveDays} + '日'"></td>
+						<td th:text="${a.tasksLabel}"></td>
+						<td class="actions">
+							<a class="btn btn-small" th:href="@{/manager/users/{id}(id=${a.id})}">編集</a>
+							<form th:action="@{/manager/users/{id}/delete(id=${a.id})}" method="post"
+								th:data-name="${a.name}"
+								onsubmit="return confirm(this.dataset.name + ' さんを削除します。勤務表のデータも削除されます。よろしいですか？')">
+								<button type="submit" class="btn btn-small btn-danger">削除</button>
+							</form>
+						</td>
+					</tr>
+					<tr th:if="${#lists.isEmpty(accounts)}">
+						<td colspan="8" class="empty">ユーザーが登録されていません</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</main>
+</body>
+</html>

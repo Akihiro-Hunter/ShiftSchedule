@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('次回勤務表作成')}"></head>
+<body class="user">
+	<header th:replace="~{fragments/layout :: header('次回勤務表作成', 'user')}"></header>
+	<main class="container">
+		<a th:replace="~{fragments/layout :: back('user')}"></a>
+		<div th:replace="~{fragments/layout :: messages}"></div>
+
+		<h2 class="section-title">
+			来期 <small th:text="${period.label()}"></small>
+		</h2>
+		<p class="hint">
+			各日に「出勤可能」「休み」「未定」を選んでください。途中で保存できます。
+			<br>
+			<span th:if="${updatedAt}" th:text="'最終保存：' + ${#temporals.format(updatedAt, 'M/d HH:mm')}"></span>
+			<span th:if="${unansweredCount > 0}" class="warn" th:text="'未入力 ' + ${unansweredCount} + '日'"></span>
+		</p>
+
+		<form th:action="@{/user/request}" method="post">
+			<div class="req-list">
+				<div class="req-day" th:each="d : ${period.dates()}" th:with="cur=${statuses.get(d)}">
+					<span class="req-date" th:classappend="${@dateLabels.weekClass(d)}"
+						th:text="${@dateLabels.monthDayWithWeek(d)}"></span>
+					<div class="seg">
+						<label th:each="s : ${allStatuses}" th:class="'seg-' + ${#strings.toLowerCase(s.name())}">
+							<input type="radio" th:name="'status_' + ${d}" th:value="${s.name()}" th:checked="${cur == s}">
+							<span th:text="${s.label}"></span>
+						</label>
+					</div>
+				</div>
+			</div>
+
+			<label class="form-row">
+				<span class="form-label">備考</span>
+				<textarea name="note" rows="4" th:maxlength="${noteMaxLength}" th:text="${note}"
+					placeholder="管理者への連絡事項があれば入力してください"></textarea>
+			</label>
+
+			<div class="sticky-actions">
+				<button type="submit" class="btn btn-primary btn-block">保存</button>
+			</div>
+		</form>
+	</main>
+</body>
+</html>

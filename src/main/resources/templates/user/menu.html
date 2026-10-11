@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('メニュー')}"></head>
+<body class="user">
+	<header th:replace="~{fragments/layout :: header('メニュー', 'user')}"></header>
+	<main class="container">
+		<nav class="menu">
+			<a class="menu-item" th:href="@{/user/shift}">
+				<span class="menu-no">1</span>
+				<span class="menu-text">勤務表確認</span>
+				<span class="menu-desc">今期の朝アシシフトを確認</span>
+			</a>
+			<a class="menu-item" th:href="@{/user/request}">
+				<span class="menu-no">2</span>
+				<span class="menu-text">次回勤務表作成</span>
+				<span class="menu-desc">来期の出勤可能日と備考を入力</span>
+			</a>
+			<a class="menu-item" th:href="@{/user/tasks}">
+				<span class="menu-no">3</span>
+				<span class="menu-text">可能作業</span>
+				<span class="menu-desc">できる作業をチェック</span>
+			</a>
+			<a class="menu-item" th:href="@{/user/profile}">
+				<span class="menu-no">4</span>
+				<span class="menu-text">個人情報設定</span>
+				<span class="menu-desc">個人情報の確認・パスワード変更</span>
+			</a>
+		</nav>
+	</main>
+</body>
+</html>

@@ -33,6 +33,15 @@
 				<span class="field-error" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></span>
 			</label>
 
+			<label class="form-row">
+				<span class="form-label">優先度</span>
+				<select th:field="*{priority}">
+					<option th:each="p : ${allPriorities}" th:value="${p}" th:text="${p.label}"></option>
+				</select>
+				<span class="hint">シフトを組む際の目安です（管理者のみ閲覧できます）</span>
+				<span class="field-error" th:if="${#fields.hasErrors('priority')}" th:errors="*{priority}"></span>
+			</label>
+
 			<div class="form-cols">
 				<label class="form-row">
 					<span class="form-label">生年月日</span>
@@ -55,11 +64,14 @@
 
 			<fieldset class="form-row">
 				<legend class="form-label">可能作業</legend>
-				<div class="check-group">
-					<label class="check" th:each="t : ${allTasks}">
-						<input type="checkbox" th:field="*{tasks}" th:value="${t}">
-						<span th:text="${t.label}"></span>
-					</label>
+				<div class="task-group" th:each="g : ${taskGroups}">
+					<span class="task-group-title" th:text="${g.key.label}"></span>
+					<div class="check-group">
+						<label class="check" th:each="t : ${g.value}">
+							<input type="checkbox" th:field="*{tasks}" th:value="${t}">
+							<span th:text="${t.label}"></span>
+						</label>
+					</div>
 				</div>
 			</fieldset>
 

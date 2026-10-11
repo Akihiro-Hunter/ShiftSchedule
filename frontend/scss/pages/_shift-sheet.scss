@@ -94,6 +94,12 @@ $row-divider: 2px solid c(border-strong);
 		z-index: 3;
 	}
 
+	// 可能作業の吹き出しを、下の行や他の固定列より手前に出す
+	tbody .sheet-name:hover,
+	tbody .sheet-name:focus-within {
+		z-index: 4;
+	}
+
 	// 出勤回数・公年休数（15日と備考の間）
 	.sheet-count {
 		min-width: 46px;
@@ -144,6 +150,123 @@ $row-divider: 2px solid c(border-strong);
 
 	&:hover {
 		color: c(primary);
+	}
+}
+
+// 氏名にマウスを乗せると可能作業を表示（右横に吹き出し）
+.name-with-tasks {
+	position: relative;
+	cursor: help;
+
+	&:focus-visible {
+		outline: 2px solid c(primary);
+		outline-offset: 2px;
+		border-radius: 2px;
+	}
+
+	&:hover .tasks-tip,
+	&:focus .tasks-tip {
+		display: block;
+	}
+}
+
+.tasks-tip {
+	display: none;
+	position: absolute;
+	top: 50%;
+	left: calc(100% + 18px);
+	z-index: 10;
+	transform: translateY(-50%);
+	min-width: 120px;
+	max-width: 260px;
+	padding: 6px 10px;
+	border-radius: 6px;
+	background: c(header-bg);
+	color: #fff;
+	font-size: 12px;
+	font-weight: normal;
+	line-height: 1.5;
+	white-space: normal;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+	pointer-events: none;
+
+	// 左向きの三角
+	&::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		right: 100%;
+		transform: translateY(-50%);
+		border: 6px solid transparent;
+		border-right-color: c(header-bg);
+	}
+}
+
+.tasks-tip-title {
+	display: block;
+	font-size: 11px;
+	opacity: 0.75;
+}
+
+// 鍵（ユーザー番号の右）。押すとその人の勤怠を変更不可に
+.lock-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	margin-left: 4px;
+	padding: 0;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	background: transparent;
+	color: c(muted);
+	vertical-align: middle;
+	cursor: pointer;
+
+	svg {
+		width: 14px;
+		height: 14px;
+	}
+
+	.icon-locked {
+		display: none;
+	}
+
+	&:hover {
+		border-color: c(border);
+		background: #fff;
+		color: c(text);
+	}
+
+	&[aria-pressed='true'] {
+		color: c(danger);
+
+		.icon-locked {
+			display: block;
+		}
+
+		.icon-unlocked {
+			display: none;
+		}
+	}
+}
+
+// 鍵がかかった行：名前と番号を赤く、勤怠のマスは変更不可の見た目に
+.sheet-user.is-locked {
+	.name-with-tasks > span:first-child,
+	.name-with-tasks > small {
+		color: c(danger);
+		font-weight: 700;
+	}
+
+	.off-toggle,
+	.note-input {
+		cursor: not-allowed;
+	}
+
+	.off-toggle:hover {
+		outline: none;
 	}
 }
 

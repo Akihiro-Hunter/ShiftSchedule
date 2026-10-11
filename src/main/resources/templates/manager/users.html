@@ -17,6 +17,7 @@
 						<th>ユーザー番号</th>
 						<th>氏名</th>
 						<th>役職</th>
+						<th>優先度</th>
 						<th>生年月日</th>
 						<th>入社日</th>
 						<th class="num">残有給</th>
@@ -30,6 +31,7 @@
 						<td th:text="${a.name}"></td>
 						<td><span class="badge" th:classappend="${a.role.name() == 'MANAGER'} ? 'badge-manager' : (${a.role.name() == 'PART'} ? 'badge-part')"
 								th:text="${a.role.label}"></span></td>
+						<td th:text="${a.priority.label}"></td>
 						<td th:text="${a.birthDate} ? ${#temporals.format(a.birthDate, 'yyyy/MM/dd')}"></td>
 						<td th:text="${a.hireDate} ? ${#temporals.format(a.hireDate, 'yyyy/MM/dd')}"></td>
 						<td class="num" th:text="${a.paidLeaveDays} + '日'"></td>
@@ -43,7 +45,7 @@
 						</td>
 					</tr>
 					<tr th:if="${#lists.isEmpty(accounts)}">
-						<td colspan="8" class="empty">ユーザーが登録されていません</td>
+						<td colspan="9" class="empty">ユーザーが登録されていません</td>
 					</tr>
 				</tbody>
 			</table>

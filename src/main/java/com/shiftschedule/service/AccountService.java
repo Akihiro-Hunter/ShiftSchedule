@@ -12,6 +12,7 @@ import com.shiftschedule.domain.Account;
 import com.shiftschedule.domain.WorkTask;
 import com.shiftschedule.repository.AccountRepository;
 import com.shiftschedule.repository.ShiftEntryRepository;
+import com.shiftschedule.repository.ShiftLockRepository;
 import com.shiftschedule.repository.ShiftRequestNoteRepository;
 import com.shiftschedule.repository.ShiftRequestRepository;
 
@@ -23,14 +24,17 @@ public class AccountService {
 	private final ShiftRequestRepository requests;
 	private final ShiftRequestNoteRepository requestNotes;
 	private final ShiftEntryRepository entries;
+	private final ShiftLockRepository locks;
 	private final PasswordEncoder encoder;
 
 	public AccountService(AccountRepository accounts, ShiftRequestRepository requests,
-			ShiftRequestNoteRepository requestNotes, ShiftEntryRepository entries, PasswordEncoder encoder) {
+			ShiftRequestNoteRepository requestNotes, ShiftEntryRepository entries, ShiftLockRepository locks,
+			PasswordEncoder encoder) {
 		this.accounts = accounts;
 		this.requests = requests;
 		this.requestNotes = requestNotes;
 		this.entries = entries;
+		this.locks = locks;
 		this.encoder = encoder;
 	}
 
@@ -69,6 +73,7 @@ public class AccountService {
 		requests.deleteByAccount_Id(id);
 		requestNotes.deleteByAccount_Id(id);
 		entries.deleteByAccount_Id(id);
+		locks.deleteByAccount_Id(id);
 		accounts.deleteById(id);
 	}
 

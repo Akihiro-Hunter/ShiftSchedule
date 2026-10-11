@@ -31,7 +31,7 @@ class ShiftPdfWriterTest {
 				boolean off = (d.getDayOfMonth() + id) % 5 == 0;
 				cells.add(new ShiftSheet.Cell(d, null, off, off ? "希" : "クール", off));
 			}
-			rows.add(new ShiftSheet.Row(id, String.format("%08d", id), "ユーザー" + id, cells, null, null));
+			rows.add(new ShiftSheet.Row(id, String.format("%08d", id), "ユーザー" + id, "", cells, null, null, false));
 		}
 		ShiftSheet sheet = new ShiftSheet(period, period.dates(), rows, List.of(), true, null);
 

@@ -378,6 +378,21 @@ textarea:focus {
   gap: 10px;
   margin-bottom: 16px;
 }
+.check-list-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.task-group + .task-group {
+  margin-top: 8px;
+}
+
+.task-group-title {
+  display: block;
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
 
 .menu {
   display: grid;
@@ -590,6 +605,10 @@ textarea:focus {
 .sheet thead .sheet-name {
   z-index: 3;
 }
+.sheet tbody .sheet-name:hover,
+.sheet tbody .sheet-name:focus-within {
+  z-index: 4;
+}
 .sheet .sheet-count {
   min-width: 46px;
   padding: 2px 4px;
@@ -633,6 +652,105 @@ textarea:focus {
 }
 .drag-handle:hover {
   color: var(--primary);
+}
+
+.name-with-tasks {
+  position: relative;
+  cursor: help;
+}
+.name-with-tasks:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.name-with-tasks:hover .tasks-tip, .name-with-tasks:focus .tasks-tip {
+  display: block;
+}
+
+.tasks-tip {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 18px);
+  z-index: 10;
+  transform: translateY(-50%);
+  min-width: 120px;
+  max-width: 260px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--header-bg);
+  color: #fff;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 1.5;
+  white-space: normal;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+.tasks-tip::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  transform: translateY(-50%);
+  border: 6px solid transparent;
+  border-right-color: var(--header-bg);
+}
+
+.tasks-tip-title {
+  display: block;
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.lock-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-left: 4px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  vertical-align: middle;
+  cursor: pointer;
+}
+.lock-toggle svg {
+  width: 14px;
+  height: 14px;
+}
+.lock-toggle .icon-locked {
+  display: none;
+}
+.lock-toggle:hover {
+  border-color: var(--border);
+  background: #fff;
+  color: var(--text);
+}
+.lock-toggle[aria-pressed=true] {
+  color: var(--danger);
+}
+.lock-toggle[aria-pressed=true] .icon-locked {
+  display: block;
+}
+.lock-toggle[aria-pressed=true] .icon-unlocked {
+  display: none;
+}
+
+.sheet-user.is-locked .name-with-tasks > span:first-child,
+.sheet-user.is-locked .name-with-tasks > small {
+  color: var(--danger);
+  font-weight: 700;
+}
+.sheet-user.is-locked .off-toggle,
+.sheet-user.is-locked .note-input {
+  cursor: not-allowed;
+}
+.sheet-user.is-locked .off-toggle:hover {
+  outline: none;
 }
 
 .drag-handle-sample {

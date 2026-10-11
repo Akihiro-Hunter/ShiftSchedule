@@ -8,6 +8,7 @@ import java.util.Set;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.shiftschedule.domain.Account;
+import com.shiftschedule.domain.Priority;
 import com.shiftschedule.domain.Role;
 import com.shiftschedule.domain.WorkTask;
 import com.shiftschedule.service.AccountRules;
@@ -50,6 +51,9 @@ public class AccountForm {
 	@NotNull(message = "役職を選んでください")
 	private Role role = Role.USER;
 
+	@NotNull(message = "優先度を選んでください")
+	private Priority priority = Priority.MEDIUM;
+
 	private Set<WorkTask> tasks = new HashSet<>();
 
 	/** 新規作成時は必須、編集時は入力した場合のみ変更 */
@@ -64,6 +68,7 @@ public class AccountForm {
 		form.hireDate = account.getHireDate();
 		form.paidLeaveDays = account.getPaidLeaveDays();
 		form.role = account.getRole();
+		form.priority = account.getPriority();
 		form.tasks = new HashSet<>(account.getTasks());
 		return form;
 	}
@@ -75,6 +80,7 @@ public class AccountForm {
 		account.setHireDate(hireDate);
 		account.setPaidLeaveDays(paidLeaveDays);
 		account.setRole(role);
+		account.setPriority(priority);
 		account.setTasks(tasks);
 	}
 

@@ -36,4 +36,24 @@
 	grid-template-columns: 1fr 1fr;
 	gap: 10px;
 	margin-bottom: 16px;
+
+	// 番号だけの短い項目（トラック積）
+	&-3 {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+// 可能作業の区分（作業・トラック積）
+.task-group {
+	& + & {
+		margin-top: 8px;
+	}
+}
+
+.task-group-title {
+	display: block;
+	margin: 0 0 6px;
+	font-size: 13px;
+	font-weight: 700;
+	color: c(muted);
 }

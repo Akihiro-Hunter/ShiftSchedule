@@ -21,7 +21,7 @@ class ShiftCsvWriterTest {
 			boolean off = d.getDayOfMonth() == 17;
 			cells.add(new ShiftSheet.Cell(d, null, off, off ? "希" : d.getDayOfMonth() == 19 ? "クール" : "", off));
 		}
-		ShiftSheet.Row row = new ShiftSheet.Row(1L, "10000001", "テストユーザー", cells, "変更もOK\r\n土日休み", null);
+		ShiftSheet.Row row = new ShiftSheet.Row(1L, "10000001", "テストユーザー", "クール", cells, "変更もOK\r\n土日休み", null, false);
 		List<Integer> planned = period.dates().stream().map(d -> 15).toList();
 		ShiftSheet sheet = new ShiftSheet(period, period.dates(), List.of(row), planned, true, null);
 

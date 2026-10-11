@@ -5,8 +5,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,12 +19,14 @@ import com.shiftschedule.domain.Period;
 import com.shiftschedule.domain.RequestStatus;
 import com.shiftschedule.domain.Role;
 import com.shiftschedule.domain.ShiftEntry;
+import com.shiftschedule.domain.ShiftLock;
 import com.shiftschedule.domain.ShiftPeriod;
 import com.shiftschedule.domain.ShiftRequest;
 import com.shiftschedule.domain.ShiftRequestNote;
 import com.shiftschedule.repository.AccountRepository;
 import com.shiftschedule.repository.DailyPlanRepository;
 import com.shiftschedule.repository.ShiftEntryRepository;
+import com.shiftschedule.repository.ShiftLockRepository;
 import com.shiftschedule.repository.ShiftPeriodRepository;
 import com.shiftschedule.repository.ShiftRequestNoteRepository;
 import com.shiftschedule.repository.ShiftRequestRepository;
@@ -38,16 +42,18 @@ public class ShiftService {
 	private final ShiftEntryRepository entries;
 	private final ShiftPeriodRepository periods;
 	private final DailyPlanRepository plans;
+	private final ShiftLockRepository locks;
 
 	public ShiftService(AccountRepository accounts, ShiftRequestRepository requests,
 			ShiftRequestNoteRepository requestNotes, ShiftEntryRepository entries, ShiftPeriodRepository periods,
-			DailyPlanRepository plans) {
+			DailyPlanRepository plans, ShiftLockRepository locks) {
 		this.accounts = accounts;
 		this.requests = requests;
 		this.requestNotes = requestNotes;
 		this.entries = entries;
 		this.periods = periods;
 		this.plans = plans;
+		this.locks = locks;
 	}
 
 	@Transactional(readOnly = true)
@@ -68,6 +74,8 @@ public class ShiftService {
 			noteMap.put(n.getAccount().getId(), n);
 		}
 
+		Set<Long> lockedIds = lockedAccountIds(period);
+
 		List<LocalDate> dates = period.dates();
 		List<ShiftSheet.Row> rows = new ArrayList<>();
 		for (Account user : staffInOrder()) {
@@ -86,8 +94,9 @@ public class ShiftService {
 				}
 			}
 			ShiftRequestNote note = noteMap.get(user.getId());
-			rows.add(new ShiftSheet.Row(user.getId(), user.getUserNumber(), user.getName(), cells,
-					note == null ? null : note.getNote(), note == null ? null : note.getUpdatedAt()));
+			rows.add(new ShiftSheet.Row(user.getId(), user.getUserNumber(), user.getName(), user.getTasksLabel(), cells,
+					note == null ? null : note.getNote(), note == null ? null : note.getUpdatedAt(),
+					lockedIds.contains(user.getId())));
 		}
 
 		Map<LocalDate, Integer> planMap = new HashMap<>();
@@ -114,6 +123,10 @@ public class ShiftService {
 		Map<Long, Map<LocalDate, ShiftEntry>> entryMap = entriesByAccount(period);
 
 		for (ShiftSheet.Row row : current.rows()) {
+			// 鍵がかかったままの人は変更しない（画面でも入力できないが、念のためサーバー側でも守る）
+			if (row.editLocked() && isLockRequested(params, row.accountId())) {
+				continue;
+			}
 			Map<LocalDate, ShiftEntry> userEntries = entryMap.getOrDefault(row.accountId(), Map.of());
 			for (ShiftSheet.Cell cell : row.cells()) {
 				ShiftEntry entry = userEntries.get(cell.date());
@@ -143,6 +156,44 @@ public class ShiftService {
 				entries.save(entry);
 			}
 		}
+	}
+
+	/**
+	 * 鍵の状態を保存する。
+	 *
+	 * @param params 画面のフォーム値（lock_{アカウントID}=true なら鍵をかける）。項目がない人は変更しない
+	 */
+	public void saveLocks(Period period, Map<String, String> params) {
+		Map<Long, ShiftLock> existing = new HashMap<>();
+		for (ShiftLock lock : locks.findByPeriodStart(period.start())) {
+			existing.put(lock.getAccount().getId(), lock);
+		}
+		for (Account account : accounts.findByRoleIn(Role.STAFF)) {
+			String value = params.get("lock_" + account.getId());
+			if (value == null) {
+				continue;
+			}
+			ShiftLock lock = existing.get(account.getId());
+			if (Boolean.parseBoolean(value) && lock == null) {
+				locks.save(new ShiftLock(account, period.start()));
+			} else if (!Boolean.parseBoolean(value) && lock != null) {
+				locks.delete(lock);
+			}
+		}
+	}
+
+	private static boolean isLockRequested(Map<String, String> params, Long accountId) {
+		String value = params.get("lock_" + accountId);
+		// 項目がない（古い画面からの送信など）場合は、鍵がかかっているものとして扱う
+		return value == null || Boolean.parseBoolean(value);
+	}
+
+	private Set<Long> lockedAccountIds(Period period) {
+		Set<Long> ids = new HashSet<>();
+		for (ShiftLock lock : locks.findByPeriodStart(period.start())) {
+			ids.add(lock.getAccount().getId());
+		}
+		return ids;
 	}
 
 	/**

@@ -38,11 +38,13 @@ public record ShiftSheet(Period period, List<LocalDate> dates, List<Row> rows, L
 	/**
 	 * 1ユーザー分の行。
 	 *
+	 * @param tasksLabel 可能作業（例：クール、ネコポス。なければ空文字）
 	 * @param requestNote 次回勤務表作成の備考
 	 * @param requestUpdatedAt 次回勤務表作成を最後に保存した日時（未保存なら null）
+	 * @param editLocked 管理者が鍵をかけた（この人の勤怠は変更しない）
 	 */
-	public record Row(Long accountId, String userNumber, String name, List<Cell> cells, String requestNote,
-			LocalDateTime requestUpdatedAt) {
+	public record Row(Long accountId, String userNumber, String name, String tasksLabel, List<Cell> cells,
+			String requestNote, LocalDateTime requestUpdatedAt, boolean editLocked) {
 
 		/** 出勤回数（上段が「公」でない日数） */
 		public int workDays() {

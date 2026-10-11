@@ -12,7 +12,17 @@ const CURRENT = { start: new Date(2026, 8, 16), label: '2026年9月16日〜2026�
 const NEXT = { start: new Date(2026, 9, 16), label: '2026年10月16日〜2026年11月15日' };
 
 const WEEK = ['日', '月', '火', '水', '木', '金', '土'];
-const TASKS = ['クール', 'ネコポス', '苗穂', '環状', '光星', 'リフト'];
+const TASK_GROUPS = [
+	['作業', ['ドライ', 'クール', 'ネコポス', 'リフト']],
+	['トラック積', ['422', '425', '403', '431', '④', '⑤', '⑥', '417', '429', '413', '420', '408']],
+];
+const TASKS = TASK_GROUPS.flatMap(([, tasks]) => tasks);
+/** Account#getTasksLabel 相当（例：作業：ドライ、クール　トラック積：422、④） */
+const tasksLabel = (tasks) =>
+	TASK_GROUPS.map(([group, list]) => [group, list.filter((t) => tasks.includes(t))])
+		.filter(([, list]) => list.length > 0)
+		.map(([group, list]) => `${group}：${list.join('、')}`)
+		.join('　');
 const STATUSES = [
 	{ name: 'AVAILABLE', label: '出勤可能' },
 	{ name: 'OFF', label: '休み' },
@@ -23,9 +33,9 @@ const LOGIN_USER = '佐藤 花子';
 
 const ACCOUNTS = [
 	{ id: 1, no: '10000001', name: '山田 太郎', role: 'MANAGER', birth: '1980/04/12', hire: '2010/04/01', leave: 0, tasks: [] },
-	{ id: 2, no: '20240001', name: '佐藤 花子', role: 'USER', birth: '2001/07/03', hire: '2022/10/16', leave: 10, tasks: ['クール', 'ネコポス', 'リフト'] },
-	{ id: 3, no: '20240002', name: '鈴木 一郎', role: 'USER', birth: '1998/12/24', hire: '2023/04/01', leave: 7.5, tasks: ['苗穂', '環状'] },
-	{ id: 4, no: '20240003', name: '高橋 美咲', role: 'PART', birth: '2003/02/14', hire: '2024/06/16', leave: 3, tasks: ['クール', '光星'] },
+	{ id: 2, no: '20240001', name: '佐藤 花子', role: 'USER', birth: '2001/07/03', hire: '2022/10/16', leave: 10, tasks: ['ドライ', 'クール', 'リフト', '422', '④', '417'] },
+	{ id: 3, no: '20240002', name: '鈴木 一郎', role: 'USER', birth: '1998/12/24', hire: '2023/04/01', leave: 7.5, tasks: ['ドライ', 'ネコポス', '425', '403'] },
+	{ id: 4, no: '20240003', name: '高橋 美咲', role: 'PART', birth: '2003/02/14', hire: '2024/06/16', leave: 3, tasks: ['クール', '⑤', '⑥'] },
 	{ id: 5, no: '20240004', name: '田中 健太', role: 'USER', birth: '1995/09/30', hire: '2021/01/16', leave: 12.5, tasks: TASKS },
 	{ id: 6, no: '20240005', name: '伊藤 さくら', role: 'USER', birth: '2004/05/05', hire: '2025/03/16', leave: 0, tasks: ['ネコポス'] },
 ];
@@ -208,7 +218,7 @@ function managerUsers() {
 						<td>${a.birth}</td>
 						<td>${a.hire}</td>
 						<td class="num">${a.leave}日</td>
-						<td>${a.tasks.join('、')}</td>
+						<td>${tasksLabel(a.tasks)}</td>
 						<td class="actions">
 							<a class="btn btn-small" href="${href('/manager/users/new')}">編集</a>
 							<form method="post" data-confirm="${esc(a.name)} さんを削除します。勤務表のデータも削除されます。よろしいですか？">
@@ -301,15 +311,23 @@ function managerUserForm() {
 
 			<fieldset class="form-row">
 				<legend class="form-label">可能作業</legend>
-				<div class="check-group">
-					${TASKS.map(
-						(t) => `
-					<label class="check">
-						<input type="checkbox" name="tasks" value="${t}"${a.tasks.includes(t) ? ' checked' : ''}>
-						<span>${t}</span>
-					</label>`,
-					).join('')}
-				</div>
+				${TASK_GROUPS.map(
+					([group, tasks]) => `
+				<div class="task-group">
+					<span class="task-group-title">${group}</span>
+					<div class="check-group">
+						${tasks
+							.map(
+								(t) => `
+						<label class="check">
+							<input type="checkbox" name="tasks" value="${t}"${a.tasks.includes(t) ? ' checked' : ''}>
+							<span>${t}</span>
+						</label>`,
+							)
+							.join('')}
+					</div>
+				</div>`,
+				).join('')}
 			</fieldset>
 
 			<label class="form-row">
@@ -334,18 +352,28 @@ function managerShifts() {
 	const body = sheet.rows
 		.map(
 			(row) => `
-					<tbody class="sheet-user" data-sortable-item>
+					<tbody class="sheet-user${row.id === 3 ? ' is-locked' : ''}" data-sortable-item>
 						<tr class="sheet-top">
 							<th class="sheet-name" rowspan="2">
 								<div class="sheet-name-inner">
 									<span class="drag-handle" draggable="true" data-sortable-handle tabindex="0"
 										title="ドラッグ（または ↑↓ キー）で並び替え" aria-label="並び替え">⠿</span>
-									<div>
+									<div class="name-with-tasks" tabindex="0">
 										<span>${esc(row.name)}</span><br>
 										<small>${row.no}</small>
+										<button type="button" class="lock-toggle" data-lock-toggle aria-pressed="${row.id === 3}" aria-label="勤怠のロック"
+											title="${row.id === 3 ? 'ロック中（押すと解除）' : 'ロックする（押すと勤怠を変更不可に）'}">
+											<svg class="icon-locked" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 7V5a3.5 3.5 0 0 1 7 0v2" fill="none" stroke="currentColor" stroke-width="1.8" /><rect x="2.5" y="7" width="11" height="8" rx="1.5" fill="currentColor" /></svg>
+											<svg class="icon-unlocked" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 7V5a3.5 3.5 0 0 1 6.8-1.2" fill="none" stroke="currentColor" stroke-width="1.8" /><rect x="2.5" y="7" width="11" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
+										</button>
+										<span class="tasks-tip" role="tooltip">
+											<span class="tasks-tip-title">可能作業</span>
+											<span>${esc(tasksLabel(row.tasks) || 'なし')}</span>
+										</span>
 									</div>
 								</div>
 								<input type="hidden" name="order" value="${row.id}">
+								<input type="hidden" name="lock_${row.id}" value="${row.id === 3}" data-lock-input>
 							</th>
 							${row.cells
 								.map(
@@ -369,7 +397,7 @@ function managerShifts() {
 									(cell) => `<td class="${reqClass(cell)}">${
 										cell.locked
 											? '<span class="mark mark-locked">希</span>'
-											: `<input type="text" class="note-input" name="note_${row.id}_${iso(cell.date)}" value="${esc(cell.bottom)}" maxlength="${NOTE_MAX_LENGTH}">`
+											: `<input type="text" class="note-input" name="note_${row.id}_${iso(cell.date)}" value="${esc(cell.bottom)}" maxlength="${NOTE_MAX_LENGTH}"${row.id === 3 ? ' readonly' : ''}>`
 									}</td>`,
 								)
 								.join('')}
@@ -409,7 +437,8 @@ function managerShifts() {
 		</div>
 		<p class="hint">上段のマスをクリックすると「公」（休み）と空白（出勤）が切り替わります。下段には自由に入力できます（<span>${NOTE_MAX_LENGTH}</span>文字まで）。<br>
 			氏名の左の <span class="drag-handle-sample">⠿</span> をドラッグ（または ↑↓ キー）すると並び順を変えられます（保存で反映され、ユーザーの勤務表確認・CSV・PDFも同じ順になります）。<br>
-			一番下の「予定人数」は日ごとに変更できます（保存で反映）。</p>
+			一番下の「予定人数」は日ごとに変更できます（保存で反映）。<br>
+			ユーザー番号の右の鍵を押すと、その人の勤怠はこの画面で変更できなくなります（名前と番号が赤色。保存で反映）。</p>
 
 		<form method="post" id="shift-form" data-dirty-guard data-worker-total>
 			<div class="sheet-wrap">
@@ -604,15 +633,23 @@ function userTasks() {
 
 		<form method="post" class="card" data-dirty-guard>
 			<p class="hint">できる作業にチェックを入れて保存してください。</p>
-			<div class="check-list">
-				${TASKS.map(
-					(t) => `
-				<label class="check check-large">
-					<input type="checkbox" name="tasks" value="${t}"${me.tasks.includes(t) ? ' checked' : ''}>
-					<span>${t}</span>
-				</label>`,
-				).join('')}
-			</div>
+			${TASK_GROUPS.map(
+				([group, tasks], i) => `
+			<section class="task-group">
+				<h3 class="task-group-title">${group}</h3>
+				<div class="check-list${i === 1 ? ' check-list-3' : ''}">
+					${tasks
+						.map(
+							(t) => `
+					<label class="check check-large">
+						<input type="checkbox" name="tasks" value="${t}"${me.tasks.includes(t) ? ' checked' : ''}>
+						<span>${t}</span>
+					</label>`,
+						)
+						.join('')}
+				</div>
+			</section>`,
+			).join('')}
 			<button type="submit" class="btn btn-primary btn-block">保存</button>
 		</form>
 	</main>`,
@@ -647,7 +684,7 @@ function userProfile() {
 				<dt>残年次有給休暇数</dt>
 				<dd>${me.leave}日</dd>
 				<dt>可能作業</dt>
-				<dd>${me.tasks.join('、') || '-'}</dd>
+				<dd>${tasksLabel(me.tasks) || '-'}</dd>
 			</dl>
 			<p class="hint">個人情報の変更は管理者に依頼してください。</p>
 		</section>

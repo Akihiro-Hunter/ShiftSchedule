@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.shiftschedule.domain.Account;
+import com.shiftschedule.domain.Priority;
 import com.shiftschedule.domain.Role;
 import com.shiftschedule.domain.WorkTask;
 import com.shiftschedule.form.AccountForm;
@@ -35,8 +36,9 @@ public class ManagerUserController {
 
 	@ModelAttribute
 	public void common(Model model) {
-		model.addAttribute("allTasks", WorkTask.values());
+		model.addAttribute("taskGroups", WorkTask.byGroup());
 		model.addAttribute("allRoles", Role.values());
+		model.addAttribute("allPriorities", Priority.values());
 	}
 
 	@GetMapping

@@ -81,6 +81,8 @@ public class ManagerShiftController {
 			redirect.addFlashAttribute("message", "保存しました");
 		}
 		}
+		// 鍵の状態は勤怠の保存の後に反映する（鍵をかける直前までの入力は保存する）
+		shiftService.saveLocks(period, params);
 		redirect.addAttribute("start", period.start().toString());
 		return "redirect:/manager/shifts";
 	}

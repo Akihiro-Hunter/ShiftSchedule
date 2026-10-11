@@ -45,8 +45,41 @@
     return pairs.join("&");
   }
 
-  // frontend/ts/modules/sortable.ts
+  // frontend/ts/modules/shift-lock.ts
   var ITEM_SELECTOR = "[data-sortable-item]";
+  var LOCKED_CLASS = "is-locked";
+  function initShiftLock() {
+    const form = document.querySelector("form[data-worker-total]");
+    if (!form) return;
+    form.addEventListener("click", (event) => {
+      const target = event.target;
+      const toggle = target.closest("[data-lock-toggle]");
+      if (toggle) {
+        const item = toggle.closest(ITEM_SELECTOR);
+        if (item) setLocked(item, toggle.getAttribute("aria-pressed") !== "true");
+        return;
+      }
+      if (target instanceof HTMLInputElement && target.type === "checkbox" && target.closest(`${ITEM_SELECTOR}.${LOCKED_CLASS}`)) {
+        event.preventDefault();
+      }
+    });
+  }
+  function setLocked(item, locked) {
+    item.classList.toggle(LOCKED_CLASS, locked);
+    const toggle = item.querySelector("[data-lock-toggle]");
+    if (toggle) {
+      toggle.setAttribute("aria-pressed", String(locked));
+      toggle.title = locked ? "\u30ED\u30C3\u30AF\u4E2D\uFF08\u62BC\u3059\u3068\u89E3\u9664\uFF09" : "\u30ED\u30C3\u30AF\u3059\u308B\uFF08\u62BC\u3059\u3068\u52E4\u6020\u3092\u5909\u66F4\u4E0D\u53EF\u306B\uFF09";
+    }
+    const input = item.querySelector("[data-lock-input]");
+    if (input) input.value = String(locked);
+    item.querySelectorAll(".note-input").forEach((note) => {
+      note.readOnly = locked;
+    });
+  }
+
+  // frontend/ts/modules/sortable.ts
+  var ITEM_SELECTOR2 = "[data-sortable-item]";
   var HANDLE_SELECTOR = "[data-sortable-handle]";
   var DRAGGING_CLASS = "is-dragging";
   var MOVED_CLASS = "is-moved";
@@ -54,7 +87,7 @@
     document.querySelectorAll("[data-sortable]").forEach(setup);
   }
   function setup(container) {
-    const items = () => Array.from(container.querySelectorAll(ITEM_SELECTOR));
+    const items = () => Array.from(container.querySelectorAll(ITEM_SELECTOR2));
     const initial = items();
     let dragging = null;
     const markMoved = () => {
@@ -62,7 +95,7 @@
     };
     container.addEventListener("dragstart", (event) => {
       const handle = event.target.closest(HANDLE_SELECTOR);
-      const item = handle?.closest(ITEM_SELECTOR);
+      const item = handle?.closest(ITEM_SELECTOR2);
       if (!item || !event.dataTransfer) return;
       dragging = item;
       event.dataTransfer.effectAllowed = "move";
@@ -76,7 +109,7 @@
     container.addEventListener("dragover", (event) => {
       if (!dragging) return;
       event.preventDefault();
-      const target = event.target.closest(ITEM_SELECTOR);
+      const target = event.target.closest(ITEM_SELECTOR2);
       if (!target || target === dragging || !container.contains(target)) return;
       const rect = target.getBoundingClientRect();
       const before = event.clientY < rect.top + rect.height / 2;
@@ -93,7 +126,7 @@
     container.addEventListener("keydown", (event) => {
       if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
       const handle = event.target.closest(HANDLE_SELECTOR);
-      const item = handle?.closest(ITEM_SELECTOR);
+      const item = handle?.closest(ITEM_SELECTOR2);
       if (!handle || !item) return;
       event.preventDefault();
       const list = items();
@@ -140,6 +173,7 @@
     initDirtyGuard();
     initSortable();
     initWorkerTotal();
+    initShiftLock();
   }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);

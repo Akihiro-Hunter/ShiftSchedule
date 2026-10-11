@@ -29,7 +29,7 @@ public class UserTaskController {
 
 	@GetMapping
 	public String show(@AuthenticationPrincipal LoginAccount login, Model model) {
-		model.addAttribute("allTasks", WorkTask.values());
+		model.addAttribute("taskGroups", WorkTask.byGroup());
 		model.addAttribute("tasks", accountService.findById(login.getId()).orElseThrow().getTasks());
 		return "user/tasks";
 	}

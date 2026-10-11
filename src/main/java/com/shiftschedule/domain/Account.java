@@ -2,8 +2,12 @@ package com.shiftschedule.domain;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import org.hibernate.annotations.ColumnDefault;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -53,6 +57,12 @@ public class Account {
 	@Column(nullable = false, length = 20)
 	private Role role;
 
+	/** シフトを組む際の優先度の目安（管理者のみ閲覧・編集可。ユーザー側には出さない） */
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false, length = 10)
+	@ColumnDefault("'MEDIUM'")
+	private Priority priority = Priority.MEDIUM;
+
 	/** 朝アシシフトでの並び順（管理者がドラッグで並び替える。未設定はユーザー番号順で末尾） */
 	private Integer sortOrder;
 
@@ -71,17 +81,15 @@ public class Account {
 		}
 	}
 
-	/** 可能作業を表示順（WorkTaskの定義順）で並べた名称 */
+	/** 可能作業を区分ごとにまとめた表示（例：作業：ドライ、クール　トラック積：422、④）。なければ空文字 */
 	public String getTasksLabel() {
-		StringBuilder sb = new StringBuilder();
-		for (WorkTask task : WorkTask.values()) {
-			if (tasks.contains(task)) {
-				if (!sb.isEmpty()) {
-					sb.append("、");
-				}
-				sb.append(task.getLabel());
+		List<String> parts = new ArrayList<>();
+		WorkTask.byGroup().forEach((group, groupTasks) -> {
+			List<String> labels = groupTasks.stream().filter(tasks::contains).map(WorkTask::getLabel).toList();
+			if (!labels.isEmpty()) {
+				parts.add(group.getLabel() + "：" + String.join("、", labels));
 			}
-		}
-		return sb.toString();
+		});
+		return String.join("　", parts);
 	}
 }

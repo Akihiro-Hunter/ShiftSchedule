@@ -1,0 +1,42 @@
+@use '../abstracts' as *;
+
+// 一覧テーブル（ユーザー情報管理）
+.table-wrap {
+	@include panel;
+	overflow-x: auto;
+}
+
+.table {
+	width: 100%;
+	border-collapse: collapse;
+
+	th,
+	td {
+		padding: 10px 12px;
+		border-bottom: 1px solid c(border);
+		text-align: left;
+		white-space: nowrap;
+	}
+
+	th {
+		background: c(surface-alt);
+		font-size: 13px;
+	}
+
+	tbody tr:last-child td {
+		border-bottom: none;
+	}
+
+	.num {
+		text-align: right;
+	}
+
+	.actions {
+		display: flex;
+		gap: 6px;
+
+		form {
+			margin: 0;
+		}
+	}
+}

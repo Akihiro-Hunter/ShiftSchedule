@@ -7,7 +7,7 @@
 		<a th:replace="~{fragments/layout :: back('user')}"></a>
 		<div th:replace="~{fragments/layout :: messages}"></div>
 
-		<form th:action="@{/user/tasks}" method="post" class="card">
+		<form th:action="@{/user/tasks}" method="post" class="card" data-dirty-guard>
 			<p class="hint">できる作業にチェックを入れて保存してください。</p>
 			<div class="check-list">
 				<label class="check check-large" th:each="t : ${allTasks}">

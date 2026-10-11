@@ -37,8 +37,7 @@
 						<td class="actions">
 							<a class="btn btn-small" th:href="@{/manager/users/{id}(id=${a.id})}">編集</a>
 							<form th:action="@{/manager/users/{id}/delete(id=${a.id})}" method="post"
-								th:data-name="${a.name}"
-								onsubmit="return confirm(this.dataset.name + ' さんを削除します。勤務表のデータも削除されます。よろしいですか？')">
+								th:data-confirm="${a.name} + ' さんを削除します。勤務表のデータも削除されます。よろしいですか？'">
 								<button type="submit" class="btn btn-small btn-danger">削除</button>
 							</form>
 						</td>

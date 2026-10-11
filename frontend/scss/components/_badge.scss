@@ -1,0 +1,24 @@
+@use '../abstracts' as *;
+
+.badge {
+	display: inline-block;
+	padding: 1px 8px;
+	border-radius: 999px;
+	background: #e8ecf0;
+	font-size: 12px;
+
+	&-manager {
+		background: #e5edff;
+		color: c(primary-dark);
+	}
+
+	&-ok {
+		background: c(ok-bg);
+		color: c(ok-text);
+	}
+
+	&-warn {
+		background: c(warn-bg);
+		color: c(warn-text);
+	}
+}

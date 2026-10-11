@@ -1,0 +1,83 @@
+@use '../abstracts' as *;
+
+.form-row {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin: 0 0 14px;
+	border: none;
+	padding: 0;
+}
+
+.form-label {
+	font-weight: 700;
+	font-size: 14px;
+	padding: 0;
+}
+
+// 「必須」マーク
+.req {
+	font-style: normal;
+	font-size: 11px;
+	color: c(danger);
+	margin-left: 4px;
+}
+
+.form-cols {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0 16px;
+
+	@include sp {
+		grid-template-columns: 1fr;
+	}
+}
+
+input[type='text'],
+input[type='password'],
+input[type='number'],
+input[type='date'],
+select,
+textarea {
+	width: 100%;
+	padding: 9px 10px;
+	border: 1px solid c(border);
+	border-radius: $radius;
+	background: #fff;
+	font: inherit;
+	font-size: 16px; // iPhone で入力時に拡大されないよう16px
+}
+
+input,
+select,
+textarea {
+	&:focus {
+		outline: 2px solid c(primary);
+		outline-offset: -1px;
+	}
+}
+
+.input-short {
+	max-width: 160px;
+}
+
+.field-error {
+	color: c(error-text);
+	font-size: 13px;
+}
+
+.form-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	justify-content: flex-end;
+	margin-top: 16px;
+}
+
+// 画面下に張り付く保存ボタン（スマートフォン）
+.sticky-actions {
+	position: sticky;
+	bottom: 0;
+	padding: 10px 0;
+	background: c(bg);
+}

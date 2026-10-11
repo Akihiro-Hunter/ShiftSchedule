@@ -1,0 +1,50 @@
+@use '../abstracts' as *;
+
+.card {
+	@include panel;
+	padding: 16px;
+	margin-bottom: 16px;
+
+	&-title {
+		margin: 0 0 12px;
+		font-size: 16px;
+	}
+}
+
+.section-title {
+	margin: 8px 0;
+	font-size: 18px;
+
+	small {
+		margin-left: 6px;
+		color: c(muted);
+		font-weight: normal;
+	}
+}
+
+.back-link {
+	display: inline-block;
+	margin-bottom: 8px;
+	text-decoration: none;
+}
+
+.hint {
+	color: c(muted);
+	font-size: 13px;
+	margin: 4px 0 12px;
+}
+
+.muted {
+	color: c(muted);
+}
+
+.warn {
+	color: c(warn-text);
+	font-weight: 700;
+}
+
+.empty {
+	text-align: center;
+	color: c(muted);
+	padding: 24px;
+}

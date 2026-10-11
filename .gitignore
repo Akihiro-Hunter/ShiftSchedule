@@ -34,3 +34,7 @@ build/
 
 ### ローカル専用設定（DBパスワード等。Gitに上げない） ###
 /config/
+
+### フロント（npm） ###
+node_modules/
+/preview/

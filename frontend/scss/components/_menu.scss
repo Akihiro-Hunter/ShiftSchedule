@@ -1,0 +1,46 @@
+@use '../abstracts' as *;
+
+.menu {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+	gap: 14px;
+}
+
+.menu-item {
+	@include panel;
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-rows: auto auto;
+	gap: 2px 14px;
+	align-items: center;
+	padding: 18px;
+	color: c(text);
+	text-decoration: none;
+
+	&:hover {
+		border-color: c(primary);
+	}
+}
+
+.menu-no {
+	grid-row: span 2;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: c(primary);
+	color: #fff;
+	font-weight: 700;
+}
+
+.menu-text {
+	font-size: 17px;
+	font-weight: 700;
+}
+
+.menu-desc {
+	color: c(muted);
+	font-size: 13px;
+}

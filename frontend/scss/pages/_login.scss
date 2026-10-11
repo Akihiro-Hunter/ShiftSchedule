@@ -1,0 +1,22 @@
+@use '../abstracts' as *;
+
+.login-page {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+	padding: 16px;
+}
+
+.login-box {
+	@include panel($radius-lg);
+	width: 100%;
+	max-width: 360px;
+	padding: 28px 24px;
+}
+
+.login-title {
+	margin: 0 0 20px;
+	text-align: center;
+	font-size: 22px;
+}

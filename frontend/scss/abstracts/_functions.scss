@@ -1,0 +1,11 @@
+@use 'sass:map';
+@use 'tokens';
+
+/// 色トークンを CSS 変数として参照する。存在しない名前はビルドエラーにする
+/// 例：color: c(primary);  →  color: var(--primary);
+@function c($name) {
+	@if not map.has-key(tokens.$colors, $name) {
+		@error "未定義の色トークンです: #{$name}";
+	}
+	@return var(--#{$name});
+}

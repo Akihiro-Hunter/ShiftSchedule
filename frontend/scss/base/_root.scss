@@ -1,0 +1,8 @@
+@use '../abstracts/tokens';
+
+:root {
+	@each $name, $value in tokens.$colors {
+		--#{$name}: #{$value};
+	}
+	--radius: #{tokens.$radius};
+}

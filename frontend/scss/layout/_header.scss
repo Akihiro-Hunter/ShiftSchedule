@@ -1,0 +1,46 @@
+@use '../abstracts' as *;
+
+// ヘッダー：左に画面名、右にユーザー名とログアウトボタン
+.app-header {
+	position: sticky;
+	top: 0;
+	z-index: 20;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 10px 16px;
+	background: c(header-bg);
+	color: #fff;
+}
+
+.app-title {
+	@include ellipsis;
+	margin: 0;
+	font-size: 18px;
+	font-weight: 700;
+
+	@include sp {
+		font-size: 16px;
+	}
+}
+
+.app-user {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-shrink: 0;
+
+	form {
+		margin: 0;
+	}
+}
+
+.app-user-name {
+	font-size: 14px;
+
+	@include sp {
+		@include ellipsis;
+		max-width: 6em;
+	}
+}

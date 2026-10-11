@@ -1,0 +1,39 @@
+@use '../abstracts' as *;
+
+.check {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	cursor: pointer;
+
+	input {
+		width: 18px;
+		height: 18px;
+	}
+
+	// タップしやすい大きいチェック（可能作業）
+	&-large {
+		padding: 14px;
+		border: 1px solid c(border);
+		border-radius: $radius;
+		font-size: 16px;
+
+		&:has(input:checked) {
+			border-color: c(primary);
+			background: c(primary-soft);
+		}
+	}
+}
+
+.check-group {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 18px;
+}
+
+.check-list {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+	margin-bottom: 16px;
+}

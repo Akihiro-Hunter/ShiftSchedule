@@ -1,0 +1,30 @@
+// =========================================================
+// 朝アシシフト 共通スタイル（エントリーポイント）
+// 管理者（.manager）は PC、アルバイト（.user）はスマートフォン想定
+// =========================================================
+
+// 土台
+@use 'base/root';
+@use 'base/base';
+
+// レイアウト
+@use 'layout/header';
+@use 'layout/container';
+
+// 部品
+@use 'components/button';
+@use 'components/flash';
+@use 'components/badge';
+@use 'components/card';
+@use 'components/form';
+@use 'components/check';
+@use 'components/menu';
+@use 'components/table';
+@use 'components/tabs';
+
+// 画面ごと
+@use 'pages/login';
+@use 'pages/shift-sheet';
+@use 'pages/my-shift';
+@use 'pages/request';
+@use 'pages/profile';

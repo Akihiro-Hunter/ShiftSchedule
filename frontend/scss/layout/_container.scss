@@ -1,0 +1,28 @@
+@use '../abstracts' as *;
+
+.container {
+	max-width: 960px;
+	margin: 0 auto;
+	padding: 16px;
+
+	.user & {
+		max-width: 560px;
+	}
+
+	&-narrow {
+		max-width: 640px;
+	}
+
+	&-wide {
+		max-width: none;
+	}
+}
+
+.toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 12px;
+}

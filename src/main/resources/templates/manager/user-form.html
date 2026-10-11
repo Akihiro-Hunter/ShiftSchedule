@@ -8,7 +8,7 @@
 			<a class="back-link" th:href="@{/manager/users}">← ユーザー一覧へ</a>
 		</div>
 
-		<form th:action="@{/manager/users/save}" th:object="${accountForm}" method="post" class="form card">
+		<form th:action="@{/manager/users/save}" th:object="${accountForm}" method="post" class="form card" data-dirty-guard>
 			<input type="hidden" th:field="*{id}">
 
 			<label class="form-row">

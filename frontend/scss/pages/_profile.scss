@@ -1,0 +1,27 @@
+@use '../abstracts' as *;
+
+// 個人情報設定
+.info {
+	display: grid;
+	grid-template-columns: 130px 1fr;
+	gap: 8px 12px;
+	margin: 0 0 8px;
+
+	dt {
+		color: c(muted);
+		font-size: 13px;
+	}
+
+	dd {
+		margin: 0;
+	}
+
+	@include sp {
+		grid-template-columns: 1fr;
+		gap: 0;
+
+		dd {
+			margin-bottom: 8px;
+		}
+	}
+}

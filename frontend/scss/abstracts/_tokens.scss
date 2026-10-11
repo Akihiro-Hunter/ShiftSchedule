@@ -1,0 +1,45 @@
+// ---------- デザイントークン ----------
+// $colors の値が :root の CSS 変数（--bg など）として出力される
+
+$colors: (
+	bg: #f4f6f8,
+	surface: #ffffff,
+	surface-alt: #f0f3f6,
+	surface-sub: #f7f9fa,
+	text: #1f2933,
+	muted: #6b7680,
+	border: #d9dee3,
+	border-strong: #aab3bc,
+	header-bg: #24303c,
+	primary: #1f6feb,
+	primary-dark: #1858c4,
+	primary-soft: #eef4ff,
+	danger: #d1435b,
+	ok-bg: #e6f4ea,
+	ok-text: #1e6b34,
+	warn-bg: #fff4d6,
+	warn-text: #8a5a00,
+	error-bg: #fde8eb,
+	error-text: #a32036,
+	sat: #1f6feb,
+	sun: #d1435b,
+	// ユーザーの希望（次回勤務表作成）
+	req-available: #e3f5e8,
+	req-undecided: #fff4cc,
+	req-off: #e2e5e9,
+	seg-available: #2f9e55,
+	seg-off: #5f6b76,
+	seg-undecided: #e0a800,
+);
+
+$radius: 8px;
+$radius-lg: 12px;
+
+$font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', 'Meiryo', sans-serif;
+
+// ブレークポイント（これ以下をスマートフォンとみなす）
+$breakpoint-sp: 600px;
+
+// 朝アシシフト表のマス
+$cell-width: 38px;
+$cell-height: 30px;

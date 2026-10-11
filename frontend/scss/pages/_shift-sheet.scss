@@ -1,0 +1,205 @@
+@use '../abstracts' as *;
+
+// =========================================================
+// 朝アシシフト表（管理者：編集 / ユーザー：閲覧）
+// 1ユーザー2段。上段は「公」（休み）か空白（出勤）、下段は自由入力
+// =========================================================
+
+$row-divider: 2px solid c(border-strong);
+
+.period-nav {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.period-label {
+	font-weight: 700;
+}
+
+.shift-status {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 6px;
+}
+
+.legend {
+	margin-left: auto;
+	font-size: 13px;
+	color: c(muted);
+
+	@include sp {
+		margin-left: 0;
+	}
+}
+
+.legend-item {
+	display: inline-block;
+	padding: 1px 8px;
+	margin-left: 4px;
+	border: 1px solid c(border);
+	border-radius: 4px;
+	color: c(text);
+}
+
+.sheet-wrap {
+	@include panel;
+	overflow: auto;
+	max-height: calc(100vh - 260px);
+
+	.user & {
+		max-height: none;
+	}
+}
+
+.sheet {
+	border-collapse: separate;
+	border-spacing: 0;
+	font-size: 13px;
+
+	th,
+	td {
+		border-right: 1px solid c(border);
+		border-bottom: 1px solid c(border);
+		text-align: center;
+		padding: 0;
+		min-width: $cell-width;
+		height: $cell-height;
+	}
+
+	thead th {
+		position: sticky;
+		top: 0;
+		z-index: 2;
+		background: c(surface-alt);
+		padding: 4px 2px;
+		line-height: 1.2;
+	}
+
+	// 氏名列は横スクロールしても左に固定
+	.sheet-name {
+		position: sticky;
+		left: 0;
+		z-index: 1;
+		min-width: 110px;
+		padding: 4px 8px;
+		background: c(surface-sub);
+		text-align: left;
+		white-space: nowrap;
+	}
+
+	thead .sheet-name {
+		z-index: 3;
+	}
+
+	.sheet-remark {
+		min-width: 200px;
+		max-width: 260px;
+		padding: 4px 8px;
+		text-align: left;
+		vertical-align: top;
+	}
+
+	// 1ユーザー2段の区切りを太く（2段にまたがる氏名・備考も）
+	.sheet-bottom td,
+	.sheet-bottom th,
+	.sheet-top .sheet-name,
+	.sheet-top .sheet-remark {
+		border-bottom: $row-divider;
+	}
+}
+
+.remark-text {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+// ユーザーの希望による背景色
+@each $status in (available, undecided, off) {
+	.req-#{$status} {
+		background: c(req-#{$status});
+	}
+}
+
+.req-none {
+	background: #fff;
+}
+
+.mark {
+	font-weight: 700;
+
+	&-locked {
+		color: #4a5560;
+	}
+}
+
+// 上段：クリックで「公」と空白を切り替え
+.off-toggle {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: $cell-height;
+	cursor: pointer;
+
+	input {
+		@include hidden-input;
+	}
+
+	span {
+		visibility: hidden;
+		font-weight: 700;
+		color: c(danger);
+	}
+
+	input:checked + span {
+		visibility: visible;
+	}
+
+	&:hover {
+		outline: 2px solid c(primary);
+		outline-offset: -2px;
+	}
+
+	input:focus-visible + span {
+		visibility: visible;
+		opacity: 0.4;
+	}
+
+	input:checked:focus-visible + span {
+		opacity: 1;
+	}
+}
+
+// 下段：自由入力（共通の input スタイルより詳細度を上げて上書き）
+.sheet .note-input {
+	width: 100%;
+	min-width: $cell-width;
+	height: $cell-height;
+	padding: 0 2px;
+	border: none;
+	border-radius: 0;
+	background: transparent;
+	font-size: 12px;
+	text-align: center;
+}
+
+// 閲覧用（ユーザーの勤務表確認）
+.sheet-readonly {
+	td {
+		background: #fff;
+	}
+
+	.sheet-top td {
+		font-weight: 700;
+		color: c(danger);
+	}
+
+	.is-me td,
+	.is-me th {
+		background: c(primary-soft);
+	}
+}

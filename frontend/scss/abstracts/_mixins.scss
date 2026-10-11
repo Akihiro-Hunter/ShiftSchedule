@@ -1,0 +1,31 @@
+@use 'tokens';
+@use 'functions' as *;
+
+/// スマートフォン幅
+@mixin sp {
+	@media (max-width: tokens.$breakpoint-sp) {
+		@content;
+	}
+}
+
+/// 白背景・枠線・角丸の箱
+@mixin panel($radius: tokens.$radius) {
+	background: c(surface);
+	border: 1px solid c(border);
+	border-radius: $radius;
+}
+
+/// チェックボックス・ラジオを見えなくする（隣の span で見た目を作る）
+/// 親要素に position: relative を付けること（付けないと横スクロールの外にはみ出す）
+@mixin hidden-input {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+}
+
+/// 1行に収めて「…」で省略
+@mixin ellipsis {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}

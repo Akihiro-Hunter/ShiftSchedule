@@ -1,0 +1,18 @@
+@use '../abstracts' as *;
+
+// 保存完了・エラーのメッセージ
+.flash {
+	padding: 10px 14px;
+	border-radius: $radius;
+	margin: 0 0 12px;
+
+	&-ok {
+		background: c(ok-bg);
+		color: c(ok-text);
+	}
+
+	&-error {
+		background: c(error-bg);
+		color: c(error-text);
+	}
+}

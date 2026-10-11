@@ -1,0 +1,22 @@
+@use '../abstracts' as *;
+
+.tabs {
+	display: flex;
+	gap: 6px;
+	margin: 4px 0 8px;
+}
+
+.tab {
+	@include panel;
+	flex: 1;
+	padding: 8px;
+	text-align: center;
+	color: c(text);
+	text-decoration: none;
+
+	&-active {
+		background: c(primary);
+		border-color: c(primary);
+		color: #fff;
+	}
+}

@@ -2,6 +2,7 @@ package com.shiftschedule.domain;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -51,6 +52,21 @@ public class Account {
 	/** 残年次有給休暇数（0.5日単位） */
 	@Column(nullable = false, precision = 4, scale = 1)
 	private BigDecimal paidLeaveDays = BigDecimal.ZERO;
+
+	/** 契約勤務日数（週あたり、3〜6日） */
+	@Column(nullable = false)
+	@ColumnDefault("5")
+	private Integer contractDays = 5;
+
+	/** 勤務開始時刻（CSV の「開始」になる） */
+	@Column(nullable = false)
+	@ColumnDefault("'05:00:00'")
+	private LocalTime startTime = LocalTime.of(5, 0);
+
+	/** 勤務終了時刻（CSV の「修了」になる） */
+	@Column(nullable = false)
+	@ColumnDefault("'08:00:00'")
+	private LocalTime endTime = LocalTime.of(8, 0);
 
 	/** 役職 */
 	@Enumerated(EnumType.STRING)

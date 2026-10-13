@@ -48,6 +48,10 @@ public class ShiftEntry {
 	@Column(nullable = false)
 	private boolean dayOff;
 
+	/** 上段の休みが年休（「年」と表示）か。dayOff が true のときだけ意味を持つ */
+	@Column(nullable = false, columnDefinition = "boolean default false")
+	private boolean paidLeave;
+
 	/** 下段：自由入力 */
 	@Column(length = NOTE_MAX_LENGTH)
 	private String note;

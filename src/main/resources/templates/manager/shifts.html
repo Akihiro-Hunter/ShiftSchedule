@@ -37,7 +37,7 @@
 				<span class="legend-item req-none">未入力</span>
 			</span>
 		</div>
-		<p class="hint">上段のマスをクリックすると「公」（休み）と空白（出勤）が切り替わります。下段には自由に入力できます（<span
+		<p class="hint">上段のマスをクリックすると「公」（休み）と空白（出勤）が切り替わります。「公」のマスを右クリックすると「年」（年休）に変わります（もう一度右クリックで「公」に戻ります）。下段には自由に入力できます（<span
 				th:text="${noteMaxLength}"></span>文字まで）。<br>
 			氏名の左の <span class="drag-handle-sample">⠿</span> をドラッグ（または ↑↓ キー）すると並び順を変えられます（保存で反映され、ユーザーの勤務表確認・CSV・PDFも同じ順になります）。<br>
 			一番下の「予定人数」は日ごとに変更できます（保存で反映）。<br>
@@ -103,10 +103,12 @@
 								th:class="'req-' + (${cell.request()} ? ${#strings.toLowerCase(cell.request().name())} : 'none') + (${cell.date() == secondStart} ? ' half-start' : '') + (${row.isOverLimit(cs.index)} ? ' is-streak' : '')"
 								th:title="${cell.request()} ? ${cell.request().label} : '未入力'">
 								<span th:if="${cell.locked()}" class="mark mark-locked">公</span>
-								<label th:unless="${cell.locked()}" class="off-toggle">
+								<label th:unless="${cell.locked()}" class="off-toggle" data-off-toggle>
 									<input type="checkbox" th:name="'off_' + ${cell.key(row.accountId())}"
 										th:checked="${cell.dayOff()}">
-									<span>公</span>
+									<span th:text="${cell.paidLeave()} ? '年' : '公'">公</span>
+									<input type="hidden" th:name="'leave_' + ${cell.key(row.accountId())}"
+										th:value="${cell.paidLeave()}" data-leave-input>
 								</label>
 							</td>
 							<td class="sheet-count" rowspan="2" data-work-days th:text="${row.workDays()}"></td>

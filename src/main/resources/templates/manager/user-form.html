@@ -62,6 +62,28 @@
 				<span class="field-error" th:if="${#fields.hasErrors('paidLeaveDays')}" th:errors="*{paidLeaveDays}"></span>
 			</label>
 
+			<label class="form-row">
+				<span class="form-label">契約勤務日数（週）</span>
+				<select th:field="*{contractDays}" class="input-short">
+					<option th:each="d : ${#numbers.sequence(3, 6)}" th:value="${d}" th:text="|週${d}日|"></option>
+				</select>
+				<span class="field-error" th:if="${#fields.hasErrors('contractDays')}" th:errors="*{contractDays}"></span>
+			</label>
+
+			<div class="form-cols">
+				<label class="form-row">
+					<span class="form-label">勤務開始時刻</span>
+					<input type="time" th:field="*{startTime}" required>
+					<span class="field-error" th:if="${#fields.hasErrors('startTime')}" th:errors="*{startTime}"></span>
+				</label>
+				<label class="form-row">
+					<span class="form-label">勤務終了時刻</span>
+					<input type="time" th:field="*{endTime}" required>
+					<span class="field-error" th:if="${#fields.hasErrors('endTime')}" th:errors="*{endTime}"></span>
+				</label>
+			</div>
+			<p class="hint">シフトCSVの「開始」「修了」の時刻になります</p>
+
 			<fieldset class="form-row">
 				<legend class="form-label">可能作業</legend>
 				<div class="task-group" th:each="g : ${taskGroups}">

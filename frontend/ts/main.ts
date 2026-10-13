@@ -4,6 +4,7 @@
 // =========================================================
 import { initConfirm } from './modules/confirm';
 import { initDirtyGuard } from './modules/dirty-guard';
+import { initPaidLeave } from './modules/paid-leave';
 import { initShiftLock } from './modules/shift-lock';
 import { initSortable } from './modules/sortable';
 import { initWorkerTotal } from './modules/worker-total';
@@ -13,6 +14,7 @@ function init(): void {
 	initDirtyGuard();
 	initSortable();
 	initWorkerTotal();
+	initPaidLeave();
 	initShiftLock();
 }
 

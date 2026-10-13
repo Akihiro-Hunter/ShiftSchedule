@@ -20,10 +20,6 @@ public class ShiftCsvWriter {
 
 	public static final Charset CHARSET = Charset.forName("Windows-31J");
 
-	/** 朝アシの勤務時間 */
-	static final String START_TIME = "5:00";
-	static final String END_TIME = "8:00";
-
 	/** 日付の列より左の列数（No・氏名・備考・開始/修了・時刻） */
 	private static final int LEFT_COLUMNS = 5;
 
@@ -53,8 +49,8 @@ public class ShiftCsvWriter {
 		int no = 1;
 		for (ShiftSheet.Row row : sheet.rows()) {
 			List<String> top = new ArrayList<>(
-					List.of(String.valueOf(no++), row.name(), oneLine(row.requestNote()), "開始", START_TIME));
-			List<String> bottom = new ArrayList<>(List.of("", row.userNumber(), "", "修了", END_TIME));
+					List.of(String.valueOf(no++), row.name(), oneLine(row.requestNote()), "開始", row.startTime()));
+			List<String> bottom = new ArrayList<>(List.of("", row.userNumber(), "", "修了", row.endTime()));
 			for (ShiftSheet.Cell cell : row.cells()) {
 				top.add(cell.top());
 				bottom.add(cell.bottom());

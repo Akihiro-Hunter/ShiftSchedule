@@ -2,6 +2,7 @@ package com.shiftschedule.form;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,6 +17,8 @@ import com.shiftschedule.service.AccountRules;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -48,6 +51,19 @@ public class AccountForm {
 	@Digits(integer = 2, fraction = 1, message = "残年次有給休暇数は小数第1位までで入力してください")
 	private BigDecimal paidLeaveDays = BigDecimal.ZERO;
 
+	@NotNull(message = "契約勤務日数を選んでください")
+	@Min(value = 3, message = "契約勤務日数は週3〜6日で選んでください")
+	@Max(value = 6, message = "契約勤務日数は週3〜6日で選んでください")
+	private Integer contractDays = 5;
+
+	@NotNull(message = "勤務開始時刻を入力してください")
+	@DateTimeFormat(pattern = "HH:mm")
+	private LocalTime startTime = LocalTime.of(5, 0);
+
+	@NotNull(message = "勤務終了時刻を入力してください")
+	@DateTimeFormat(pattern = "HH:mm")
+	private LocalTime endTime = LocalTime.of(8, 0);
+
 	@NotNull(message = "役職を選んでください")
 	private Role role = Role.USER;
 
@@ -67,6 +83,9 @@ public class AccountForm {
 		form.birthDate = account.getBirthDate();
 		form.hireDate = account.getHireDate();
 		form.paidLeaveDays = account.getPaidLeaveDays();
+		form.contractDays = account.getContractDays();
+		form.startTime = account.getStartTime();
+		form.endTime = account.getEndTime();
 		form.role = account.getRole();
 		form.priority = account.getPriority();
 		form.tasks = new HashSet<>(account.getTasks());
@@ -79,6 +98,9 @@ public class AccountForm {
 		account.setBirthDate(birthDate);
 		account.setHireDate(hireDate);
 		account.setPaidLeaveDays(paidLeaveDays);
+		account.setContractDays(contractDays);
+		account.setStartTime(startTime);
+		account.setEndTime(endTime);
 		account.setRole(role);
 		account.setPriority(priority);
 		account.setTasks(tasks);

@@ -23,6 +23,7 @@ public record ShiftSheet(Period period, List<LocalDate> dates, List<Row> rows, L
 	}
 
 	public static final String DAY_OFF_MARK = "公";
+	public static final String PAID_LEAVE_MARK = "年";
 	public static final String REQUESTED_OFF_MARK = "希";
 
 	public HalfStatus status(Half half) {
@@ -86,7 +87,15 @@ public record ShiftSheet(Period period, List<LocalDate> dates, List<Row> rows, L
 	 * @param carryIn 表の先頭の日の直前から続いている出勤日数（前の期にまたがる連勤の判定用）
 	 */
 	public record Row(Long accountId, String userNumber, String name, String tasksLabel, List<Cell> cells,
-			String requestNote, LocalDateTime requestUpdatedAt, boolean editLocked, int carryIn) {
+			String requestNote, LocalDateTime requestUpdatedAt, boolean editLocked, int carryIn, String startTime,
+			String endTime) {
+
+		/** 勤務時間は朝アシの既定（5:00〜8:00） */
+		public Row(Long accountId, String userNumber, String name, String tasksLabel, List<Cell> cells,
+				String requestNote, LocalDateTime requestUpdatedAt, boolean editLocked, int carryIn) {
+			this(accountId, userNumber, name, tasksLabel, cells, requestNote, requestUpdatedAt, editLocked, carryIn,
+					"5:00", "8:00");
+		}
 
 		/** 各日が属する連勤の長さ（休みの日は 0）。半月の区切りに関係なく通して数える */
 		public List<Integer> runLengths() {
@@ -106,7 +115,7 @@ public record ShiftSheet(Period period, List<LocalDate> dates, List<Row> rows, L
 		/** 指定した位置の日だけに絞った行（ユーザー向け。連勤の判定には使わない） */
 		Row only(List<Integer> indexes) {
 			return new Row(accountId, userNumber, name, tasksLabel, indexes.stream().map(cells::get).toList(),
-					requestNote, requestUpdatedAt, editLocked, 0);
+					requestNote, requestUpdatedAt, editLocked, 0, startTime, endTime);
 		}
 
 		/** 出勤回数（上段が「公」でない日数） */
@@ -145,14 +154,20 @@ public record ShiftSheet(Period period, List<LocalDate> dates, List<Row> rows, L
 	 * 1日分のマス。
 	 *
 	 * @param request ユーザーの希望（未入力なら null）
-	 * @param dayOff 上段が「公」か
+	 * @param dayOff 上段が「公」または「年」か
 	 * @param bottom 下段の文字
 	 * @param locked ユーザーが休みを希望した日（管理者は変更不可）
+	 * @param paidLeave 休みが年休（「年」）か
 	 */
-	public record Cell(LocalDate date, RequestStatus request, boolean dayOff, String bottom, boolean locked) {
+	public record Cell(LocalDate date, RequestStatus request, boolean dayOff, String bottom, boolean locked,
+			boolean paidLeave) {
+
+		public Cell(LocalDate date, RequestStatus request, boolean dayOff, String bottom, boolean locked) {
+			this(date, request, dayOff, bottom, locked, false);
+		}
 
 		public String top() {
-			return dayOff ? DAY_OFF_MARK : "";
+			return !dayOff ? "" : paidLeave ? PAID_LEAVE_MARK : DAY_OFF_MARK;
 		}
 
 		/** 画面のフォーム項目名に使うキー */

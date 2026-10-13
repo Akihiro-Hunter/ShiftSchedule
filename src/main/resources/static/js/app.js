@@ -45,6 +45,40 @@
     return pairs.join("&");
   }
 
+  // frontend/ts/modules/paid-leave.ts
+  function initPaidLeave() {
+    const form = document.querySelector("form[data-worker-total]");
+    if (!form) return;
+    const render = (toggle) => {
+      const leave = toggle.querySelector("[data-leave-input]");
+      const label = toggle.querySelector("span");
+      if (label) label.textContent = leave?.value === "true" ? "\u5E74" : "\u516C";
+    };
+    form.addEventListener("contextmenu", (event) => {
+      const toggle = event.target.closest("[data-off-toggle]");
+      if (!toggle || toggle.closest(".is-locked")) return;
+      event.preventDefault();
+      const check = toggle.querySelector('input[type="checkbox"]');
+      const leave = toggle.querySelector("[data-leave-input]");
+      if (!check || !leave) return;
+      const becomePaid = !check.checked || leave.value !== "true";
+      leave.value = becomePaid ? "true" : "false";
+      check.checked = true;
+      render(toggle);
+      check.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    form.addEventListener("change", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || target.type !== "checkbox" || target.checked) return;
+      const toggle = target.closest("[data-off-toggle]");
+      const leave = toggle?.querySelector("[data-leave-input]");
+      if (toggle && leave) {
+        leave.value = "false";
+        render(toggle);
+      }
+    });
+  }
+
   // frontend/ts/modules/shift-lock.ts
   var ITEM_SELECTOR = "[data-sortable-item]";
   var LOCKED_CLASS = "is-locked";
@@ -198,6 +232,7 @@
     initDirtyGuard();
     initSortable();
     initWorkerTotal();
+    initPaidLeave();
     initShiftLock();
   }
   if (document.readyState === "loading") {

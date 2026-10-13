@@ -102,13 +102,15 @@ public class ShiftService {
 					ShiftEntry entry = userEntries.get(date);
 					boolean dayOff = entry != null && entry.isDayOff();
 					String bottom = entry == null || entry.getNote() == null ? "" : entry.getNote();
-					cells.add(new ShiftSheet.Cell(date, request, dayOff, bottom, false));
+					boolean paidLeave = dayOff && entry.isPaidLeave();
+					cells.add(new ShiftSheet.Cell(date, request, dayOff, bottom, false, paidLeave));
 				}
 			}
 			ShiftRequestNote note = noteMap.get(user.getId());
 			rows.add(new ShiftSheet.Row(user.getId(), user.getUserNumber(), user.getName(), user.getTasksLabel(), cells,
 					note == null ? null : note.getNote(), note == null ? null : note.getUpdatedAt(),
-					lockedIds.contains(user.getId()), carryIns.getOrDefault(user.getId(), 0)));
+					lockedIds.contains(user.getId()), carryIns.getOrDefault(user.getId(), 0),
+						timeLabel(user.getStartTime()), timeLabel(user.getEndTime())));
 		}
 
 		Map<LocalDate, Integer> planMap = new HashMap<>();
@@ -186,6 +188,7 @@ public class ShiftService {
 				}
 				String key = cell.key(row.accountId());
 				boolean dayOff = params.containsKey("off_" + key);
+				boolean paidLeave = dayOff && Boolean.parseBoolean(params.get("leave_" + key));
 				String note = params.getOrDefault("note_" + key, "").strip();
 				note = ShiftRequestService.truncate(note, ShiftEntry.NOTE_MAX_LENGTH);
 
@@ -199,6 +202,7 @@ public class ShiftService {
 					entry = new ShiftEntry(accounts.getReferenceById(row.accountId()), cell.date());
 				}
 				entry.setDayOff(dayOff);
+				entry.setPaidLeave(paidLeave);
 				entry.setNote(note.isEmpty() ? null : note);
 				entries.save(entry);
 			}
@@ -227,6 +231,11 @@ public class ShiftService {
 				locks.delete(lock);
 			}
 		}
+	}
+
+	/** CSV 用の時刻表記（例：5:00） */
+	private static String timeLabel(java.time.LocalTime time) {
+		return time.getHour() + ":" + String.format("%02d", time.getMinute());
 	}
 
 	private static boolean isLockRequested(Map<String, String> params, Long accountId) {

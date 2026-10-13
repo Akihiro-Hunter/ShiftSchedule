@@ -11,7 +11,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.shiftschedule.domain.Account;
 import com.shiftschedule.domain.Priority;
 import com.shiftschedule.domain.Role;
-import com.shiftschedule.domain.WorkTask;
 import com.shiftschedule.service.AccountRules;
 
 import jakarta.validation.constraints.DecimalMax;
@@ -70,7 +69,8 @@ public class AccountForm {
 	@NotNull(message = "優先度を選んでください")
 	private Priority priority = Priority.MEDIUM;
 
-	private Set<WorkTask> tasks = new HashSet<>();
+	/** 可能作業の ID */
+	private Set<Long> taskIds = new HashSet<>();
 
 	/** 新規作成時は必須、編集時は入力した場合のみ変更 */
 	private String password;
@@ -88,7 +88,7 @@ public class AccountForm {
 		form.endTime = account.getEndTime();
 		form.role = account.getRole();
 		form.priority = account.getPriority();
-		form.tasks = new HashSet<>(account.getTasks());
+		account.getTasks().forEach(t -> form.taskIds.add(t.getId()));
 		return form;
 	}
 
@@ -103,7 +103,6 @@ public class AccountForm {
 		account.setEndTime(endTime);
 		account.setRole(role);
 		account.setPriority(priority);
-		account.setTasks(tasks);
 	}
 
 	public boolean isNew() {
@@ -111,7 +110,7 @@ public class AccountForm {
 	}
 
 	/** チェックが1つもないと null が届くため空集合にする */
-	public void setTasks(Set<WorkTask> tasks) {
-		this.tasks = tasks == null ? new HashSet<>() : tasks;
+	public void setTaskIds(Set<Long> taskIds) {
+		this.taskIds = taskIds == null ? new HashSet<>() : taskIds;
 	}
 }

@@ -90,7 +90,7 @@
 					<span class="task-group-title" th:text="${g.key.label}"></span>
 					<div class="check-group">
 						<label class="check" th:each="t : ${g.value}">
-							<input type="checkbox" th:field="*{tasks}" th:value="${t}">
+							<input type="checkbox" th:field="*{taskIds}" th:value="${t.id}">
 							<span th:text="${t.label}"></span>
 						</label>
 					</div>

@@ -13,7 +13,7 @@
 				<h3 class="task-group-title" th:text="${g.key.label}"></h3>
 				<div class="check-list" th:classappend="${g.key.name() == 'TRUCK'} ? 'check-list-3'">
 					<label class="check check-large" th:each="t : ${g.value}">
-						<input type="checkbox" name="tasks" th:value="${t}" th:checked="${tasks.contains(t)}">
+						<input type="checkbox" name="taskIds" th:value="${t.id}" th:checked="${taskIds.contains(t.id)}">
 						<span th:text="${t.label}"></span>
 					</label>
 				</div>

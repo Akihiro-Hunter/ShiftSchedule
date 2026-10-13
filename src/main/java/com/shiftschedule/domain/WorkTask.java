@@ -1,55 +1,55 @@
 package com.shiftschedule.domain;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.Getter;
+import lombok.Setter;
 
-/** 可能作業（定義順が画面の表示順） */
-public enum WorkTask {
-	DRY(TaskGroup.WORK, "ドライ"),
-	COOL(TaskGroup.WORK, "クール"),
-	NEKOPOS(TaskGroup.WORK, "ネコポス"),
-	LIFT(TaskGroup.WORK, "リフト"),
+/**
+ * 可能作業（例：ドライ、リフト、408）。管理者が編集する。
+ * シフトを決める際に参照される（例：リフトができる人を毎日1人以上など）。
+ */
+@Entity
+@Table(name = "work_tasks", uniqueConstraints = @UniqueConstraint(columnNames = { "group_id", "name" }))
+@Getter
+@Setter
+public class WorkTask {
 
-	TRUCK_422(TaskGroup.TRUCK, "422"),
-	TRUCK_425(TaskGroup.TRUCK, "425"),
-	TRUCK_403(TaskGroup.TRUCK, "403"),
-	TRUCK_431(TaskGroup.TRUCK, "431"),
-	TRUCK_4(TaskGroup.TRUCK, "④"),
-	TRUCK_5(TaskGroup.TRUCK, "⑤"),
-	TRUCK_6(TaskGroup.TRUCK, "⑥"),
-	TRUCK_417(TaskGroup.TRUCK, "417"),
-	TRUCK_429(TaskGroup.TRUCK, "429"),
-	TRUCK_413(TaskGroup.TRUCK, "413"),
-	TRUCK_420(TaskGroup.TRUCK, "420"),
-	TRUCK_408(TaskGroup.TRUCK, "408");
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-	private final TaskGroup group;
-	private final String label;
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
+	@JoinColumn(name = "group_id", nullable = false)
+	private TaskGroup group;
 
-	WorkTask(TaskGroup group, String label) {
-		this.group = group;
-		this.label = label;
-	}
+	@Column(nullable = false, length = 30)
+	private String name;
 
-	public TaskGroup getGroup() {
-		return group;
-	}
+	/** 大項目内の表示順（小さいほど先） */
+	@Column(nullable = false)
+	private int sortOrder;
 
+	/** 画面表示用 */
 	public String getLabel() {
-		return label;
+		return name;
 	}
 
-	/** 区分ごとの可能作業（画面のチェック欄用。区分・作業とも定義順） */
-	public static Map<TaskGroup, List<WorkTask>> byGroup() {
-		Map<TaskGroup, List<WorkTask>> map = new LinkedHashMap<>();
-		for (TaskGroup group : TaskGroup.values()) {
-			map.put(group, new ArrayList<>());
-		}
-		for (WorkTask task : values()) {
-			map.get(task.group).add(task);
-		}
-		return map;
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof WorkTask other && id != null && id.equals(other.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return id == null ? 0 : id.hashCode();
 	}
 }

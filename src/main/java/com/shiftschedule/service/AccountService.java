@@ -77,8 +77,7 @@ public class AccountService {
 		accounts.deleteById(id);
 	}
 
-	public void updateTasks(Long id, Set<WorkTask> tasks) {
-		accounts.findById(id).orElseThrow().setTasks(tasks);
+	public void updateTasks(Long id, Set<WorkTask> tasks) {		accounts.findById(id).orElseThrow().setTasks(tasks);
 	}
 
 	/**

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('作業項目の編集')}"></head>
+<body class="manager">
+	<header th:replace="~{fragments/layout :: header('3. 作業項目の編集', 'manager')}"></header>
+	<main class="container container-narrow">
+		<a th:replace="~{fragments/layout :: back('manager')}"></a>
+		<div th:replace="~{fragments/layout :: messages}"></div>
+
+		<p class="hint">
+			ここで登録した大項目・作業は、ユーザーの「可能作業」の選択肢になり、シフトを決める際にも参照されます
+			（例：リフトができる人を毎日1人以上など）。名前を変えても、できる人の設定は引き継がれます。
+		</p>
+
+		<section class="card task-edit" th:each="g : ${taskGroups}">
+			<form class="task-edit-row task-edit-group" th:action="@{/manager/tasks/groups/{id}/rename(id=${g.key.id})}" method="post">
+				<input type="text" name="name" th:value="${g.key.name}" maxlength="30" required aria-label="大項目名">
+				<button type="submit" class="btn btn-small">名称変更</button>
+			</form>
+			<form class="task-edit-delete" th:action="@{/manager/tasks/groups/{id}/delete(id=${g.key.id})}" method="post"
+				th:data-confirm="|大項目「${g.key.name}」と、その下の作業（${#lists.size(g.value)}件）をすべて削除します。ユーザーの可能作業からも外れます。よろしいですか？|">
+				<button type="submit" class="btn btn-small btn-danger">大項目を削除</button>
+			</form>
+
+			<ul class="task-edit-list">
+				<li th:each="t : ${g.value}">
+					<form class="task-edit-row" th:action="@{/manager/tasks/{id}/rename(id=${t.id})}" method="post">
+						<input type="text" name="name" th:value="${t.name}" maxlength="30" required aria-label="作業名">
+						<span class="task-edit-count" th:text="|${userCounts[t.id]}人|"></span>
+						<button type="submit" class="btn btn-small">名称変更</button>
+					</form>
+					<form class="task-edit-delete" th:action="@{/manager/tasks/{id}/delete(id=${t.id})}" method="post"
+						th:data-confirm="|作業「${t.name}」を削除します。できる人（${userCounts[t.id]}人）の可能作業からも外れます。よろしいですか？|">
+						<button type="submit" class="btn btn-small btn-danger">削除</button>
+					</form>
+				</li>
+				<li th:if="${#lists.isEmpty(g.value)}" class="empty">作業がありません</li>
+			</ul>
+
+			<form class="task-edit-row task-edit-add" th:action="@{/manager/tasks/groups/{id}/tasks(id=${g.key.id})}" method="post">
+				<input type="text" name="name" maxlength="30" required placeholder="作業名を追加" aria-label="追加する作業名">
+				<button type="submit" class="btn btn-small btn-primary">＋ 作業を追加</button>
+			</form>
+		</section>
+		<p class="empty" th:if="${#maps.isEmpty(taskGroups)}">大項目がありません。下から追加してください。</p>
+
+		<form class="card task-edit-row task-edit-add" th:action="@{/manager/tasks/groups}" method="post">
+			<input type="text" name="name" maxlength="30" required placeholder="新しい大項目名（例：作業、トラック積）" aria-label="追加する大項目名">
+			<button type="submit" class="btn btn-primary">＋ 大項目を追加</button>
+		</form>
+	</main>
+</body>
+</html>

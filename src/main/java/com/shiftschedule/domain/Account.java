@@ -4,15 +4,16 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.annotations.ColumnDefault;
 
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -21,6 +22,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -83,10 +86,9 @@ public class Account {
 	private Integer sortOrder;
 
 	/** 可能作業 */
-	@ElementCollection(fetch = FetchType.EAGER)
-	@CollectionTable(name = "account_tasks", joinColumns = @JoinColumn(name = "account_id"))
-	@Enumerated(EnumType.STRING)
-	@Column(name = "task", length = 20)
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "account_work_tasks", joinColumns = @JoinColumn(name = "account_id"),
+			inverseJoinColumns = @JoinColumn(name = "task_id"))
 	private Set<WorkTask> tasks = new HashSet<>();
 
 	/** Hibernate が管理するコレクションを差し替えないよう、中身を入れ替える */
@@ -99,13 +101,15 @@ public class Account {
 
 	/** 可能作業を区分ごとにまとめた表示（例：作業：ドライ、クール　トラック積：422、④）。なければ空文字 */
 	public String getTasksLabel() {
+		Map<TaskGroup, List<String>> byGroup = new LinkedHashMap<>();
+		tasks.stream()
+				.sorted(Comparator.comparingInt((WorkTask t) -> t.getGroup().getSortOrder())
+						.thenComparing(t -> t.getGroup().getId())
+						.thenComparingInt(WorkTask::getSortOrder)
+						.thenComparing(WorkTask::getId))
+				.forEach(t -> byGroup.computeIfAbsent(t.getGroup(), g -> new ArrayList<>()).add(t.getLabel()));
 		List<String> parts = new ArrayList<>();
-		WorkTask.byGroup().forEach((group, groupTasks) -> {
-			List<String> labels = groupTasks.stream().filter(tasks::contains).map(WorkTask::getLabel).toList();
-			if (!labels.isEmpty()) {
-				parts.add(group.getLabel() + "：" + String.join("、", labels));
-			}
-		});
+		byGroup.forEach((group, labels) -> parts.add(group.getLabel() + "：" + String.join("、", labels)));
 		return String.join("　", parts);
 	}
 }

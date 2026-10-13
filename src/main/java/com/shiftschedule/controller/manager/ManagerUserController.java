@@ -17,11 +17,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.shiftschedule.domain.Account;
 import com.shiftschedule.domain.Priority;
 import com.shiftschedule.domain.Role;
-import com.shiftschedule.domain.WorkTask;
 import com.shiftschedule.form.AccountForm;
 import com.shiftschedule.security.LoginAccount;
 import com.shiftschedule.service.AccountRules;
 import com.shiftschedule.service.AccountService;
+import com.shiftschedule.service.TaskService;
 
 /** 1.ユーザー情報管理 */
 @Controller
@@ -30,13 +30,16 @@ public class ManagerUserController {
 
 	private final AccountService accountService;
 
-	public ManagerUserController(AccountService accountService) {
+	private final TaskService taskService;
+
+	public ManagerUserController(AccountService accountService, TaskService taskService) {
 		this.accountService = accountService;
+		this.taskService = taskService;
 	}
 
 	@ModelAttribute
 	public void common(Model model) {
-		model.addAttribute("taskGroups", WorkTask.byGroup());
+		model.addAttribute("taskGroups", taskService.byGroup());
 		model.addAttribute("allRoles", Role.values());
 		model.addAttribute("allPriorities", Priority.values());
 	}
@@ -69,6 +72,7 @@ public class ManagerUserController {
 		}
 		Account account = form.isNew() ? new Account() : accountService.findById(form.getId()).orElseThrow();
 		form.applyTo(account);
+		account.setTasks(taskService.resolve(form.getTaskIds()));
 		accountService.save(account, form.getPassword());
 		redirect.addFlashAttribute("message", account.getName() + " さんの情報を保存しました");
 		return "redirect:/manager/users";

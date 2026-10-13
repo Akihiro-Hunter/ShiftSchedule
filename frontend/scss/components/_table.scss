@@ -39,4 +39,25 @@
 			margin: 0;
 		}
 	}
+
+	// 行全体をリンクとして扱う（行内の a を行いっぱいに広げる）
+	.row-link {
+		position: relative;
+
+		&:hover {
+			background: c(surface-alt);
+		}
+
+		// 氏名はリンク風にせず通常の文字として見せる
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
+
+		a::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+		}
+	}
 }

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('ユーザー登録')}"></head>
+<body class="manager">
+	<header th:replace="~{fragments/layout :: header('ユーザー登録', 'manager')}"></header>
+	<main class="container">
+		<div class="toolbar">
+			<a th:replace="~{fragments/layout :: back('manager')}"></a>
+			<a class="btn btn-primary" th:href="@{/manager/registrations/new}">＋ 新規登録</a>
+		</div>
+		<div th:replace="~{fragments/layout :: messages}"></div>
+
+		<div class="table-wrap">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>ユーザー番号</th>
+						<th>氏名</th>
+						<th>役職</th>
+						<th>生年月日</th>
+						<th>入社日</th>
+						<th class="num">契約勤務日数</th>
+						<th>契約時間</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="row-link" th:each="a : ${accounts}">
+						<td th:text="${a.userNumber}"></td>
+						<td><a th:href="@{/manager/registrations/{id}(id=${a.id})}" th:text="${a.name}"></a></td>
+						<td><span class="badge" th:classappend="${a.role.name() == 'MANAGER'} ? 'badge-manager' : (${a.role.name() == 'PART'} ? 'badge-part')"
+								th:text="${a.role.label}"></span></td>
+						<td th:text="${a.birthDate} ? ${#temporals.format(a.birthDate, 'yyyy/MM/dd')}"></td>
+						<td th:text="${a.hireDate} ? ${#temporals.format(a.hireDate, 'yyyy/MM/dd')}"></td>
+						<td class="num" th:text="|週${a.contractDays}日|"></td>
+						<td th:text="${#temporals.format(a.startTime, 'HH:mm')} + '〜' + ${#temporals.format(a.endTime, 'HH:mm')}"></td>
+					</tr>
+					<tr th:if="${#lists.isEmpty(accounts)}">
+						<td colspan="7" class="empty">ユーザーが登録されていません</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</main>
+</body>
+</html>

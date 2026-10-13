@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${accountForm.isNew()} ? 'ユーザー新規登録' : 'ユーザー登録情報の変更')}"></head>
+<body class="manager">
+	<header th:replace="~{fragments/layout :: header(${accountForm.isNew()} ? 'ユーザー新規登録' : 'ユーザー登録情報の変更', 'manager')}"></header>
+	<main class="container container-narrow">
+		<div class="toolbar">
+			<a class="back-link" th:href="@{/manager/registrations}">← ユーザー登録へ</a>
+		</div>
+
+		<form th:action="@{/manager/registrations/save}" th:object="${accountForm}" method="post" class="form card" data-dirty-guard>
+			<input type="hidden" th:field="*{id}">
+
+			<label class="form-row">
+				<span class="form-label">ユーザー番号 <em class="req">必須</em></span>
+				<input type="text" th:field="*{userNumber}" inputmode="numeric" maxlength="8" pattern="\d{8}"
+					title="半角数字8桁" required>
+				<span class="hint">半角数字8桁</span>
+				<span class="field-error" th:if="${#fields.hasErrors('userNumber')}" th:errors="*{userNumber}"></span>
+			</label>
+
+			<label class="form-row">
+				<span class="form-label">氏名 <em class="req">必須</em></span>
+				<input type="text" th:field="*{name}" maxlength="50" required>
+				<span class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+			</label>
+
+			<label class="form-row">
+				<span class="form-label">役職</span>
+				<select th:field="*{role}">
+					<option th:each="r : ${allRoles}" th:value="${r}" th:text="${r.label}"></option>
+				</select>
+				<span class="field-error" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></span>
+			</label>
+
+			<div class="form-cols">
+				<label class="form-row">
+					<span class="form-label">生年月日</span>
+					<input type="date" th:field="*{birthDate}">
+					<span class="field-error" th:if="${#fields.hasErrors('birthDate')}" th:errors="*{birthDate}"></span>
+				</label>
+				<label class="form-row">
+					<span class="form-label">入社日</span>
+					<input type="date" th:field="*{hireDate}">
+					<span class="field-error" th:if="${#fields.hasErrors('hireDate')}" th:errors="*{hireDate}"></span>
+				</label>
+			</div>
+			<p class="hint">アルバイト・パートの場合、生年月日と入社日は必須です</p>
+
+			<label class="form-row">
+				<span class="form-label">契約勤務日数（週）</span>
+				<select th:field="*{contractDays}" class="input-short">
+					<option th:each="d : ${#numbers.sequence(3, 6)}" th:value="${d}" th:text="|週${d}日|"></option>
+				</select>
+				<span class="field-error" th:if="${#fields.hasErrors('contractDays')}" th:errors="*{contractDays}"></span>
+			</label>
+
+			<div class="form-cols">
+				<label class="form-row">
+					<span class="form-label">勤務開始時刻</span>
+					<input type="time" th:field="*{startTime}" required>
+					<span class="field-error" th:if="${#fields.hasErrors('startTime')}" th:errors="*{startTime}"></span>
+				</label>
+				<label class="form-row">
+					<span class="form-label">勤務終了時刻</span>
+					<input type="time" th:field="*{endTime}" required>
+					<span class="field-error" th:if="${#fields.hasErrors('endTime')}" th:errors="*{endTime}"></span>
+				</label>
+			</div>
+			<p class="hint">シフトCSVの「開始」「修了」の時刻になります</p>
+
+			<label class="form-row">
+				<span class="form-label" th:text="*{isNew()} ? '初期パスワード' : 'パスワード再設定'">パスワード</span>
+				<input type="password" th:field="*{password}" pattern="[A-Za-z0-9]{8,}" title="半角英数字8文字以上"
+					autocomplete="new-password" th:required="*{isNew()}">
+				<span class="hint" th:text="*{isNew()} ? '半角英数字8文字以上' : '変更する場合のみ入力（半角英数字8文字以上）'"></span>
+				<span class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
+			</label>
+
+			<div class="form-actions">
+				<button type="submit" class="btn btn-primary">保存</button>
+			</div>
+		</form>
+
+		<form th:unless="${accountForm.isNew()}" class="form-delete"
+			th:action="@{/manager/registrations/{id}/delete(id=${accountForm.id})}" method="post"
+			th:data-confirm="${accountForm.name} + ' さんを削除します。勤務表のデータも削除されます。よろしいですか？'">
+			<button type="submit" class="btn btn-danger">削除</button>
+		</form>
+	</main>
+</body>
+</html>

@@ -6,7 +6,6 @@
 	<main class="container">
 		<div class="toolbar">
 			<a th:replace="~{fragments/layout :: back('manager')}"></a>
-			<a class="btn btn-primary" th:href="@{/manager/users/new}">＋ 新規作成</a>
 		</div>
 		<div th:replace="~{fragments/layout :: messages}"></div>
 
@@ -18,26 +17,24 @@
 						<th>氏名</th>
 						<th>役職</th>
 						<th>優先度</th>
-						<th>生年月日</th>
 						<th>入社日</th>
 						<th class="num">残有給</th>
 						<th>可能作業</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr th:each="a : ${accounts}">
+					<tr class="row-link" th:each="a : ${accounts}">
 						<td th:text="${a.userNumber}"></td>
 						<td><a th:href="@{/manager/users/{id}(id=${a.id})}" th:text="${a.name}"></a></td>
 						<td><span class="badge" th:classappend="${a.role.name() == 'MANAGER'} ? 'badge-manager' : (${a.role.name() == 'PART'} ? 'badge-part')"
 								th:text="${a.role.label}"></span></td>
 						<td th:text="${a.priority.label}"></td>
-						<td th:text="${a.birthDate} ? ${#temporals.format(a.birthDate, 'yyyy/MM/dd')}"></td>
 						<td th:text="${a.hireDate} ? ${#temporals.format(a.hireDate, 'yyyy/MM/dd')}"></td>
 						<td class="num" th:text="${a.paidLeaveDays} + '日'"></td>
 						<td th:text="${a.tasksLabel}"></td>
 					</tr>
 					<tr th:if="${#lists.isEmpty(accounts)}">
-						<td colspan="8" class="empty">ユーザーが登録されていません</td>
+						<td colspan="7" class="empty">ユーザーが登録されていません（「ユーザー登録」から登録してください）</td>
 					</tr>
 				</tbody>
 			</table>

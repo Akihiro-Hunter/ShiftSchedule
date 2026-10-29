@@ -14,7 +14,7 @@ public class RootController {
 
 	@GetMapping("/manager")
 	public String managerRoot() {
-		return "redirect:/manager/menu";
+		return "redirect:/manager/shifts";
 	}
 
 	@GetMapping("/user")

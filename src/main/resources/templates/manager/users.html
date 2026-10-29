@@ -2,11 +2,9 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('ユーザー情報管理')}"></head>
 <body class="manager">
-	<header th:replace="~{fragments/layout :: header('ユーザー情報管理', 'manager')}"></header>
+	<header th:replace="~{fragments/layout :: managerHeader('users')}"></header>
+	<aside th:replace="~{fragments/layout :: managerSide('users')}"></aside>
 	<main class="container">
-		<div class="toolbar">
-			<a th:replace="~{fragments/layout :: back('manager')}"></a>
-		</div>
 		<div th:replace="~{fragments/layout :: messages}"></div>
 
 		<div class="table-wrap">

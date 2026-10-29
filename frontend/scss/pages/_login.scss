@@ -18,5 +18,14 @@
 .login-title {
 	margin: 0 0 20px;
 	text-align: center;
-	font-size: 22px;
+	font-family: 'Yu Gothic', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+	font-size: 28px;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	// 深みのある夕焼け色（臙脂 → 茜 → 橙）
+	background: linear-gradient(90deg, #7a1f3d, #b8321f 50%, #e0701c);
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: #b8321f; // グラデーション非対応の環境向け
+	-webkit-text-fill-color: transparent;
 }

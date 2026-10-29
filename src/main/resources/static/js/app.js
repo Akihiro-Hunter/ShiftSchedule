@@ -112,6 +112,40 @@
     });
   }
 
+  // frontend/ts/modules/side-nav.ts
+  var STORAGE_KEY = "managerSideCollapsed";
+  var COLLAPSED_CLASS = "side-collapsed";
+  var READY_CLASS = "side-ready";
+  var root = document.documentElement;
+  function initSideNav() {
+    const toggle = document.querySelector("[data-side-toggle]");
+    if (!toggle) return;
+    const apply = (collapsed) => {
+      root.classList.toggle(COLLAPSED_CLASS, collapsed);
+      toggle.setAttribute("aria-expanded", String(!collapsed));
+    };
+    apply(read() === "1");
+    requestAnimationFrame(() => root.classList.add(READY_CLASS));
+    toggle.addEventListener("click", () => {
+      const collapsed = !root.classList.contains(COLLAPSED_CLASS);
+      apply(collapsed);
+      write(collapsed ? "1" : "0");
+    });
+  }
+  function read() {
+    try {
+      return localStorage.getItem(STORAGE_KEY);
+    } catch {
+      return null;
+    }
+  }
+  function write(value) {
+    try {
+      localStorage.setItem(STORAGE_KEY, value);
+    } catch {
+    }
+  }
+
   // frontend/ts/modules/sortable.ts
   var ITEM_SELECTOR2 = "[data-sortable-item]";
   var HANDLE_SELECTOR = "[data-sortable-handle]";
@@ -229,6 +263,7 @@
   // frontend/ts/main.ts
   function init() {
     initConfirm();
+    initSideNav();
     initDirtyGuard();
     initSortable();
     initWorkerTotal();

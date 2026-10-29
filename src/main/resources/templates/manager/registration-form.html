@@ -2,7 +2,8 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head(${accountForm.isNew()} ? 'ユーザー新規登録' : 'ユーザー登録情報の変更')}"></head>
 <body class="manager">
-	<header th:replace="~{fragments/layout :: header(${accountForm.isNew()} ? 'ユーザー新規登録' : 'ユーザー登録情報の変更', 'manager')}"></header>
+	<header th:replace="~{fragments/layout :: managerHeader('registrations')}"></header>
+	<aside th:replace="~{fragments/layout :: managerSide('registrations')}"></aside>
 	<main class="container container-narrow">
 		<div class="toolbar">
 			<a class="back-link" th:href="@{/manager/registrations}">← ユーザー登録へ</a>

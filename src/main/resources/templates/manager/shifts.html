@@ -2,10 +2,10 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('ユーザー勤務表管理')}"></head>
 <body class="manager">
-	<header th:replace="~{fragments/layout :: header('ユーザー勤務表管理', 'manager')}"></header>
+	<header th:replace="~{fragments/layout :: managerHeader('shifts')}"></header>
+	<aside th:replace="~{fragments/layout :: managerSide('shifts')}"></aside>
 	<main class="container container-wide">
 		<div class="toolbar">
-			<a th:replace="~{fragments/layout :: back('manager')}"></a>
 			<div class="period-nav">
 				<a class="btn btn-small" th:href="@{/manager/shifts(start=${period.previous().start()})}">← 前期</a>
 				<span class="period-label">

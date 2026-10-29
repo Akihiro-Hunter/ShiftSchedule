@@ -2,7 +2,8 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('ユーザー編集')}"></head>
 <body class="manager">
-	<header th:replace="~{fragments/layout :: header('ユーザー編集', 'manager')}"></header>
+	<header th:replace="~{fragments/layout :: managerHeader('users')}"></header>
+	<aside th:replace="~{fragments/layout :: managerSide('users')}"></aside>
 	<main class="container container-narrow">
 		<div class="toolbar">
 			<a class="back-link" th:href="@{/manager/users}">← ユーザー一覧へ</a>

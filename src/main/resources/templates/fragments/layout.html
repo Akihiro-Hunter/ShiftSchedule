@@ -5,7 +5,13 @@
 <head th:fragment="head(title)">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title th:text="${title} + ' | 朝アシシフト'">朝アシシフト</title>
+<title th:text="${title} + ' | シフトチョーセー(仮)'">シフトチョーセー(仮)</title>
+<!-- 管理者画面の左ナビを閉じていた場合、描画前に閉じておく（読み込み後だと一瞬開いて見える） -->
+<script>
+	try {
+		if (localStorage.getItem('managerSideCollapsed') === '1') document.documentElement.classList.add('side-collapsed');
+	} catch (e) {}
+</script>
 <link rel="stylesheet" th:href="@{/css/app.css}">
 <script th:src="@{/js/app.js}" defer></script>
 </head>
@@ -22,6 +28,47 @@
 			</form>
 		</div>
 	</header>
+
+	<!-- 管理者用ヘッダー：左にシステム名、続けて勤務表・ユーザー情報・作業項目・ユーザー登録、右にユーザー名とログアウト -->
+	<header th:fragment="managerHeader(active)" class="app-header">
+		<a class="app-brand" th:href="@{/manager/shifts}">シフトチョーセー(仮)</a>
+		<nav class="app-nav" aria-label="メインメニュー">
+			<a th:href="@{/manager/shifts}" th:classappend="${active == 'shifts'} ? 'is-active'">勤務表</a>
+			<a th:href="@{/manager/users}" th:classappend="${active == 'users'} ? 'is-active'">ユーザー情報</a>
+			<a th:href="@{/manager/tasks}" th:classappend="${active == 'tasks'} ? 'is-active'">作業項目</a>
+			<a th:href="@{/manager/registrations}" th:classappend="${active == 'registrations'} ? 'is-active'">ユーザー登録</a>
+		</nav>
+		<div class="app-user">
+			<span class="app-user-name" th:text="${loginName}">氏名</span>
+			<form th:action="@{/manager/logout}" method="post">
+				<button type="submit" class="btn btn-small">ログアウト</button>
+			</form>
+		</div>
+	</header>
+
+	<!-- 管理者用の開閉できるナビゲーションメニュー（左） -->
+	<aside th:fragment="managerSide(active)" class="app-side">
+		<button type="button" class="side-tab" data-side-toggle aria-controls="manager-side" aria-expanded="true"
+			aria-label="ナビゲーションメニューを開閉" title="メニューの開閉"></button>
+		<nav id="manager-side" class="side-nav" aria-label="ナビゲーションメニュー">
+			<a th:href="@{/manager/shifts}" th:classappend="${active == 'shifts'} ? 'is-active'">
+				<span class="side-text">勤務表</span>
+				<span class="side-desc">シフトの作成・確定・CSV出力</span>
+			</a>
+			<a th:href="@{/manager/users}" th:classappend="${active == 'users'} ? 'is-active'">
+				<span class="side-text">ユーザー情報</span>
+				<span class="side-desc">優先度・残有給・可能作業の編集</span>
+			</a>
+			<a th:href="@{/manager/tasks}" th:classappend="${active == 'tasks'} ? 'is-active'">
+				<span class="side-text">作業項目</span>
+				<span class="side-desc">大項目・作業名の追加・編集・削除</span>
+			</a>
+			<a th:href="@{/manager/registrations}" th:classappend="${active == 'registrations'} ? 'is-active'">
+				<span class="side-text">ユーザー登録</span>
+				<span class="side-desc">新規登録・基本情報・パスワード再設定</span>
+			</a>
+		</nav>
+	</aside>
 
 	<!-- 保存完了・エラーのメッセージ -->
 	<div th:fragment="messages">

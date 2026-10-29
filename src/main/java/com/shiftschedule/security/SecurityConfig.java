@@ -44,14 +44,14 @@ public class SecurityConfig {
 	@Order(1)
 	SecurityFilterChain managerFilterChain(HttpSecurity http, DaoAuthenticationProvider managerAuthenticationProvider)
 			throws Exception {
-		return areaFilterChain(http, "/manager", List.of(Role.MANAGER), managerAuthenticationProvider);
+		return areaFilterChain(http, "/manager", "/shifts", List.of(Role.MANAGER), managerAuthenticationProvider);
 	}
 
 	@Bean
 	@Order(2)
 	SecurityFilterChain userFilterChain(HttpSecurity http, DaoAuthenticationProvider userAuthenticationProvider)
 			throws Exception {
-		return areaFilterChain(http, "/user", Role.STAFF, userAuthenticationProvider);
+		return areaFilterChain(http, "/user", "/menu", Role.STAFF, userAuthenticationProvider);
 	}
 
 	/** /manager・/user 以外（トップページ、CSS など） */
@@ -75,7 +75,7 @@ public class SecurityConfig {
 		return provider;
 	}
 
-	private static SecurityFilterChain areaFilterChain(HttpSecurity http, String base, List<Role> roles,
+	private static SecurityFilterChain areaFilterChain(HttpSecurity http, String base, String landing, List<Role> roles,
 			DaoAuthenticationProvider provider) throws Exception {
 		http.securityMatcher(base + "/**")
 				.authenticationManager(new ProviderManager(provider))
@@ -86,7 +86,7 @@ public class SecurityConfig {
 						.loginPage(base + "/login")
 						.usernameParameter("userNumber")
 						.passwordParameter("password")
-						.defaultSuccessUrl(base + "/menu", true)
+						.defaultSuccessUrl(base + landing, true)
 						.failureUrl(base + "/login?error"))
 				.logout(logout -> logout
 						.logoutUrl(base + "/logout")

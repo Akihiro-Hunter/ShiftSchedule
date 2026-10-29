@@ -1,0 +1,60 @@
+@use '../abstracts' as *;
+
+// 作業項目の編集（管理者）
+.task-edit {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 8px 12px;
+	align-items: center;
+	margin-bottom: 16px;
+
+	> .task-edit-list,
+	> .task-edit-add {
+		grid-column: 1 / -1;
+	}
+}
+
+.task-edit-row {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+
+	input[type='text'] {
+		flex: 1;
+		min-width: 0;
+	}
+}
+
+.task-edit-group input[type='text'] {
+	font-weight: bold;
+}
+
+.task-edit-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 8px 12px;
+	align-items: center;
+
+	> li {
+		display: contents;
+
+		&.empty {
+			display: block;
+			grid-column: 1 / -1;
+		}
+	}
+}
+
+.task-edit-count {
+	color: #666;
+	font-size: 0.85em;
+	white-space: nowrap;
+}
+
+.task-edit-add {
+	border-top: 1px dashed #ccc;
+	padding-top: 12px;
+}

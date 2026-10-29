@@ -1,6 +1,6 @@
 @use '../abstracts' as *;
 
-// ヘッダー：左に画面名、右にユーザー名とログアウトボタン
+// ヘッダー：左に画面名（管理者はシステム名とメニュー）、右にユーザー名とログアウトボタン
 .app-header {
 	position: sticky;
 	top: 0;
@@ -43,4 +43,182 @@
 		@include ellipsis;
 		max-width: 6em;
 	}
+}
+
+// ---------- 管理者画面：ヘッダーのメニューと、左の開閉ナビゲーション ----------
+$header-height: 52px;
+$side-width: 220px;
+$tab-width: 18px;
+// 開閉の速さ。メニュー枠・栞・本文を同じ時間で動かす
+$side-duration: 0.8s;
+
+.manager {
+	display: grid;
+	grid-template-columns: $side-width minmax(0, 1fr);
+	grid-template-rows: auto 1fr;
+	align-items: start;
+	min-height: 100vh;
+
+	// 閉じた状態は <html> に付く（描画前に付けて、一瞬開いて見えるのを防ぐ）
+	.side-collapsed & {
+		grid-template-columns: $tab-width minmax(0, 1fr);
+	}
+
+	// 読み込み直後は動かさず、開閉ボタンを使えるようになってから動かす
+	.side-ready & {
+		transition: grid-template-columns $side-duration ease;
+	}
+
+	> .app-header {
+		grid-column: 1 / -1;
+		min-height: $header-height;
+	}
+
+	> main {
+		// margin: auto のままだと内容の幅に広がってしまうので、幅を指定する
+		width: 100%;
+		min-width: 0;
+	}
+}
+
+.app-brand {
+	flex-shrink: 0;
+	font-size: 18px;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	text-decoration: none;
+	// 暗いヘッダーの上で映える明るめの夕焼け色
+	background: linear-gradient(90deg, #ffd08a, #ff8a5c 55%, #f0607a);
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+}
+
+.app-nav {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	margin-right: auto;
+	overflow-x: auto;
+
+	a {
+		padding: 6px 14px;
+		border-radius: 6px;
+		color: #d5dce3;
+		text-decoration: none;
+		white-space: nowrap;
+
+		&:hover {
+			background: rgba(255, 255, 255, 0.1);
+		}
+
+		&.is-active {
+			background: rgba(255, 255, 255, 0.18);
+			color: #fff;
+			font-weight: 700;
+		}
+	}
+}
+
+// ナビ枠の右側に出る栞。閉じても栞だけは画面の左端に残る
+$tab-height: 56px;
+
+.app-side {
+	position: sticky;
+	top: $header-height;
+	align-self: stretch;
+	width: $side-width;
+	min-height: calc(100vh - #{$header-height});
+
+	// 閉じている間は、枠の幅が本文に重なっても栞以外は操作を邪魔しない
+	.side-collapsed & {
+		pointer-events: none;
+	}
+}
+
+.side-nav {
+	position: absolute;
+	inset: 0 auto 0 0;
+	width: $side-width;
+	padding: 12px 8px;
+	overflow-y: auto;
+	background: c(surface);
+	border-right: 1px solid c(border);
+
+	// 読み込み直後は動かさず、開閉ボタンを使えるようになってから動かす
+	.side-ready & {
+		transition: transform $side-duration ease, visibility $side-duration;
+	}
+
+	.side-collapsed & {
+		transform: translateX(-100%);
+		visibility: hidden;
+	}
+}
+
+.side-tab {
+	position: absolute;
+	top: 12px;
+	left: 100%;
+	z-index: 5;
+	width: $tab-width;
+	height: $tab-height;
+	padding: 0;
+	border: none;
+	border-radius: 0 8px 8px 0;
+	background: c(header-bg);
+	color: #fff;
+	font-size: 16px;
+	line-height: 1;
+	cursor: pointer;
+	box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.25);
+	pointer-events: auto;
+
+	.side-ready & {
+		transition: left $side-duration ease, background 0.15s;
+	}
+
+	&::before {
+		content: '‹';
+	}
+
+	&:hover {
+		background: c(primary);
+	}
+
+	.side-collapsed & {
+		left: 0;
+
+		&::before {
+			content: '›';
+		}
+	}
+}
+
+.side-nav a {
+	display: block;
+	padding: 10px 12px;
+	border-radius: 6px;
+	color: c(text);
+	text-decoration: none;
+
+	&:hover {
+		background: c(surface-alt);
+	}
+
+	&.is-active {
+		background: c(primary-soft);
+		box-shadow: inset 3px 0 0 c(primary);
+	}
+}
+
+.side-text {
+	display: block;
+	font-weight: 700;
+}
+
+.side-desc {
+	display: block;
+	color: c(muted);
+	font-size: 12px;
 }

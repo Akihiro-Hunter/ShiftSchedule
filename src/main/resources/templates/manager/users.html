@@ -8,16 +8,19 @@
 		<div th:replace="~{fragments/layout :: messages}"></div>
 
 		<div class="table-wrap">
-			<table class="table">
+			<table class="table table-fixed">
+					<colgroup>
+						<col style="width: 13%"><col style="width: 14%"><col style="width: 10%"><col style="width: 10%"><col style="width: 13%"><col style="width: 10%"><col style="width: 30%">
+					</colgroup>
 				<thead>
 					<tr>
-						<th>ユーザー番号</th>
-						<th>氏名</th>
-						<th>役職</th>
-						<th>優先度</th>
-						<th>入社日</th>
-						<th class="num">残有給</th>
-						<th>可能作業</th>
+						<th><a class="sort" th:href="@{/manager/users(sort='userNumber',dir=${sort == 'userNumber' and dir == 'asc' ? 'desc' : 'asc'})}">ユーザー番号<span class="sort-mark" th:if="${sort == 'userNumber'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span></a></th>
+						<th><a class="sort" th:href="@{/manager/users(sort='name',dir=${sort == 'name' and dir == 'asc' ? 'desc' : 'asc'})}">氏名<span class="sort-mark" th:if="${sort == 'name'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span></a></th>
+						<th><a class="sort" th:href="@{/manager/users(sort='role',dir=${sort == 'role' and dir == 'asc' ? 'desc' : 'asc'})}">役職<span class="sort-mark" th:if="${sort == 'role'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span></a></th>
+						<th><a class="sort" th:href="@{/manager/users(sort='priority',dir=${sort == 'priority' and dir == 'asc' ? 'desc' : 'asc'})}">優先度<span class="sort-mark" th:if="${sort == 'priority'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span></a></th>
+						<th><a class="sort" th:href="@{/manager/users(sort='hireDate',dir=${sort == 'hireDate' and dir == 'asc' ? 'desc' : 'asc'})}">入社日<span class="sort-mark" th:if="${sort == 'hireDate'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span></a></th>
+						<th class="num"><a class="sort" th:href="@{/manager/users(sort='paidLeaveDays',dir=${sort == 'paidLeaveDays' and dir == 'asc' ? 'desc' : 'asc'})}">残有給<span class="sort-mark" th:if="${sort == 'paidLeaveDays'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span></a></th>
+						<th><a class="sort" th:href="@{/manager/users(sort='tasks',dir=${sort == 'tasks' and dir == 'asc' ? 'desc' : 'asc'})}">可能作業<span class="sort-mark" th:if="${sort == 'tasks'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span></a></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -29,7 +32,7 @@
 						<td th:text="${a.priority.label}"></td>
 						<td th:text="${a.hireDate} ? ${#temporals.format(a.hireDate, 'yyyy/MM/dd')}"></td>
 						<td class="num" th:text="${a.paidLeaveDays} + '日'"></td>
-						<td th:text="${a.tasksLabel}"></td>
+						<td class="wrap" th:text="${a.tasksLabel}"></td>
 					</tr>
 					<tr th:if="${#lists.isEmpty(accounts)}">
 						<td colspan="7" class="empty">ユーザーが登録されていません（「ユーザー登録」から登録してください）</td>

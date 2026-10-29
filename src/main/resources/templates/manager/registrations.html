@@ -11,16 +11,19 @@
 		<div th:replace="~{fragments/layout :: messages}"></div>
 
 		<div class="table-wrap">
-			<table class="table">
+			<table class="table table-fixed">
+					<colgroup>
+						<col style="width: 14%"><col style="width: 18%"><col style="width: 12%"><col style="width: 14%"><col style="width: 14%"><col style="width: 14%"><col style="width: 14%">
+					</colgroup>
 				<thead>
 					<tr>
-						<th>ユーザー番号</th>
-						<th>氏名</th>
-						<th>役職</th>
-						<th>生年月日</th>
-						<th>入社日</th>
-						<th class="num">契約勤務日数</th>
-						<th>契約時間</th>
+						<th><a class="sort" th:href="@{/manager/registrations(sort='userNumber',dir=${sort == 'userNumber' and dir == 'asc' ? 'desc' : 'asc'})}">ユーザー番号<span class="sort-mark" th:if="${sort == 'userNumber'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span></a></th>
+						<th><a class="sort" th:href="@{/manager/registrations(sort='name',dir=${sort == 'name' and dir == 'asc' ? 'desc' : 'asc'})}">氏名<span class="sort-mark" th:if="${sort == 'name'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span></a></th>
+						<th><a class="sort" th:href="@{/manager/registrations(sort='role',dir=${sort == 'role' and dir == 'asc' ? 'desc' : 'asc'})}">役職<span class="sort-mark" th:if="${sort == 'role'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span></a></th>
+						<th><a class="sort" th:href="@{/manager/registrations(sort='birthDate',dir=${sort == 'birthDate' and dir == 'asc' ? 'desc' : 'asc'})}">生年月日<span class="sort-mark" th:if="${sort == 'birthDate'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span></a></th>
+						<th><a class="sort" th:href="@{/manager/registrations(sort='hireDate',dir=${sort == 'hireDate' and dir == 'asc' ? 'desc' : 'asc'})}">入社日<span class="sort-mark" th:if="${sort == 'hireDate'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span></a></th>
+						<th class="num"><a class="sort" th:href="@{/manager/registrations(sort='contractDays',dir=${sort == 'contractDays' and dir == 'asc' ? 'desc' : 'asc'})}">契約勤務日数<span class="sort-mark" th:if="${sort == 'contractDays'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span></a></th>
+						<th><a class="sort" th:href="@{/manager/registrations(sort='time',dir=${sort == 'time' and dir == 'asc' ? 'desc' : 'asc'})}">契約時間<span class="sort-mark" th:if="${sort == 'time'}" th:text="${dir == 'asc' ? '▲' : '▼'}"></span></a></th>
 					</tr>
 				</thead>
 				<tbody>

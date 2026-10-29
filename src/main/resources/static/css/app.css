@@ -612,6 +612,31 @@ textarea:focus {
   background: var(--surface-alt);
   font-size: 13px;
 }
+/* ソートで列幅が変わらないよう固定する */
+.table-fixed {
+  table-layout: fixed;
+}
+.table-fixed th,
+.table-fixed td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.table-fixed td.wrap {
+  white-space: normal;
+  overflow: visible;
+}
+.table th a.sort {
+  color: inherit;
+  text-decoration: none;
+}
+.table th a.sort:hover {
+  text-decoration: underline;
+}
+.table th .sort-mark {
+  font-size: 11px;
+  margin-left: 4px;
+  color: var(--primary, #2563eb);
+}
 .table tbody tr:last-child td {
   border-bottom: none;
 }

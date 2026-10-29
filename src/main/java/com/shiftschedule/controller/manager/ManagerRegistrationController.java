@@ -1,5 +1,6 @@
 package com.shiftschedule.controller.manager;
 
+import java.util.Comparator;
 import java.util.Objects;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.shiftschedule.domain.Account;
@@ -38,8 +40,26 @@ public class ManagerRegistrationController {
 	}
 
 	@GetMapping
-	public String list(Model model) {
-		model.addAttribute("accounts", accountService.findAll());
+	public String list(@RequestParam(defaultValue = "userNumber") String sort,
+			@RequestParam(defaultValue = "asc") String dir, Model model) {
+		Comparator<Account> comparator = switch (sort) {
+		case "name" -> Comparator.comparing(Account::getName);
+		case "role" -> Comparator.comparing(Account::getRole);
+		case "birthDate" -> Comparator.comparing(Account::getBirthDate, Comparator.nullsLast(Comparator.naturalOrder()));
+		case "hireDate" -> Comparator.comparing(Account::getHireDate, Comparator.nullsLast(Comparator.naturalOrder()));
+		case "contractDays" -> Comparator.comparing(Account::getContractDays);
+		case "time" -> Comparator.comparing(Account::getStartTime).thenComparing(Account::getEndTime);
+		default -> Comparator.comparing(Account::getUserNumber);
+		};
+		boolean desc = "desc".equals(dir);
+		if (desc) {
+			comparator = comparator.reversed();
+		}
+		// 同順位はユーザー番号昇順で安定させる
+		comparator = comparator.thenComparing(Account::getUserNumber);
+		model.addAttribute("accounts", accountService.findAll().stream().sorted(comparator).toList());
+		model.addAttribute("sort", sort);
+		model.addAttribute("dir", desc ? "desc" : "asc");
 		return "manager/registrations";
 	}
 

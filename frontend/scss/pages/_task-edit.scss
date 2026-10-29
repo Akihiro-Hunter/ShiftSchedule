@@ -1,23 +1,62 @@
 @use '../abstracts' as *;
 
 // 作業項目の編集（管理者）
-.task-edit {
-	display: grid;
-	grid-template-columns: 1fr auto;
-	gap: 8px 12px;
+// 上に追加フォーム、下に大項目ごとの見出し＋作業2列。名前を消して保存すると削除
+.task-add {
+	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
-	margin-bottom: 16px;
+	gap: 12px 24px;
+	margin-bottom: 24px;
 
-	> .task-edit-list,
-	> .task-edit-add {
-		grid-column: 1 / -1;
+	label {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	input[type='text'] {
+		width: 240px;
 	}
 }
 
-.task-edit-row {
+.task-sec {
+	padding: 16px 0 20px;
+	border-bottom: 1px dotted c(border-strong);
+}
+
+.task-sec-head {
 	display: flex;
-	gap: 8px;
 	align-items: center;
+	gap: 12px;
+	margin-bottom: 8px;
+
+	// 作業名の入力欄と見分けがつくよう、大きめの太字にする
+	.task-sec-name {
+		width: 100%;
+		max-width: 560px;
+		font-weight: bold;
+		font-size: 1.4em;
+	}
+}
+
+.task-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px 32px;
+
+	> li {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+
+		&.empty {
+			grid-column: 1 / -1;
+		}
+	}
 
 	input[type='text'] {
 		flex: 1;
@@ -25,36 +64,24 @@
 	}
 }
 
-.task-edit-group input[type='text'] {
-	font-weight: bold;
-}
-
-.task-edit-list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: grid;
-	grid-template-columns: 1fr auto;
-	gap: 8px 12px;
-	align-items: center;
-
-	> li {
-		display: contents;
-
-		&.empty {
-			display: block;
-			grid-column: 1 / -1;
-		}
-	}
-}
-
-.task-edit-count {
-	color: #666;
-	font-size: 0.85em;
+.task-count {
+	width: 3.5em;
+	text-align: right;
 	white-space: nowrap;
 }
 
-.task-edit-add {
-	border-top: 1px dashed #ccc;
-	padding-top: 12px;
+// 右下に常時表示する保存ボタン
+.task-save-btn {
+	position: fixed;
+	right: 24px;
+	bottom: 24px;
+	z-index: 50;
+	padding: 12px 28px;
+	font-size: 16px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+// 保存ボタンが最下部の項目と重ならないよう余白を取る
+.container:has(.task-save-btn) {
+	padding-bottom: 96px;
 }

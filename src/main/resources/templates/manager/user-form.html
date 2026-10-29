@@ -12,30 +12,29 @@
 		<form th:action="@{/manager/users/save}" th:object="${userEditForm}" method="post" class="form card" data-dirty-guard>
 			<input type="hidden" th:field="*{id}">
 
-			<div class="form-row">
-				<span class="form-label">ユーザー番号</span>
-				<span th:text="*{userNumber}"></span>
+			<div class="form-cols form-cols-4">
+				<div class="form-row">
+					<span class="form-label">ユーザー番号</span>
+					<span th:text="*{userNumber}"></span>
+				</div>
+				<div class="form-row">
+					<span class="form-label">氏名</span>
+					<span th:text="*{name}"></span>
+				</div>
+				<label class="form-row">
+					<span class="form-label">優先度</span>
+					<select th:field="*{priority}">
+						<option th:each="p : ${allPriorities}" th:value="${p}" th:text="${p.label}"></option>
+					</select>
+					<span class="field-error" th:if="${#fields.hasErrors('priority')}" th:errors="*{priority}"></span>
+				</label>
+				<label class="form-row">
+					<span class="form-label">残有給（日）</span>
+					<input type="number" th:field="*{paidLeaveDays}" min="0" max="99.5" step="0.5" required>
+					<span class="field-error" th:if="${#fields.hasErrors('paidLeaveDays')}" th:errors="*{paidLeaveDays}"></span>
+				</label>
 			</div>
-			<div class="form-row">
-				<span class="form-label">氏名</span>
-				<span th:text="*{name}"></span>
-			</div>
-			<p class="hint">ユーザー番号・氏名などの基本情報は「ユーザー登録」で変更します</p>
-
-			<label class="form-row">
-				<span class="form-label">優先度</span>
-				<select th:field="*{priority}">
-					<option th:each="p : ${allPriorities}" th:value="${p}" th:text="${p.label}"></option>
-				</select>
-				<span class="hint">シフトを組む際の目安です（管理者のみ閲覧できます）</span>
-				<span class="field-error" th:if="${#fields.hasErrors('priority')}" th:errors="*{priority}"></span>
-			</label>
-
-			<label class="form-row">
-				<span class="form-label">残年次有給休暇数（日）</span>
-				<input type="number" th:field="*{paidLeaveDays}" min="0" max="99.5" step="0.5" required class="input-short">
-				<span class="field-error" th:if="${#fields.hasErrors('paidLeaveDays')}" th:errors="*{paidLeaveDays}"></span>
-			</label>
+			<p class="hint">ユーザー番号・氏名などの基本情報は「ユーザー登録」で変更します。優先度はシフトを組む際の目安で、管理者のみ閲覧できます。</p>
 
 			<fieldset class="form-row">
 				<legend class="form-label">可能作業</legend>

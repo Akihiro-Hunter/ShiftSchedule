@@ -4,50 +4,65 @@
 <body class="manager">
 	<header th:replace="~{fragments/layout :: managerHeader('tasks')}"></header>
 	<aside th:replace="~{fragments/layout :: managerSide('tasks')}"></aside>
-	<main class="container container-narrow">
+	<main class="container">
 		<div th:replace="~{fragments/layout :: messages}"></div>
 
 		<p class="hint">
+			名前を消して「保存」すると、その大項目・作業を削除します（大項目を消すと、下の作業もすべて削除されます）。
 			ここで登録した大項目・作業は、ユーザーの「可能作業」の選択肢になり、シフトを決める際にも参照されます
 			（例：リフトができる人を毎日1人以上など）。名前を変えても、できる人の設定は引き継がれます。
 		</p>
 
-		<section class="card task-edit" th:each="g : ${taskGroups}">
-			<form class="task-edit-row task-edit-group" th:action="@{/manager/tasks/groups/{id}/rename(id=${g.key.id})}" method="post">
-				<input type="text" name="name" th:value="${g.key.name}" maxlength="30" required aria-label="大項目名">
-				<button type="submit" class="btn btn-small">名称変更</button>
-			</form>
-			<form class="task-edit-delete" th:action="@{/manager/tasks/groups/{id}/delete(id=${g.key.id})}" method="post"
-				th:data-confirm="|大項目「${g.key.name}」と、その下の作業（${#lists.size(g.value)}件）をすべて削除します。ユーザーの可能作業からも外れます。よろしいですか？|">
-				<button type="submit" class="btn btn-small btn-danger">大項目を削除</button>
-			</form>
+		<form class="task-add" th:action="@{/manager/tasks/add}" method="post">
+			<label>大項目：
+				<input type="text" name="groupName" list="task-group-options" maxlength="30" required autocomplete="off"
+					placeholder="選択または入力" data-task-add-group>
+			</label>
+			<datalist id="task-group-options">
+				<option th:each="g : ${taskGroups}" th:value="${g.key.name}"></option>
+			</datalist>
+			<label>作業名：
+				<input type="text" name="taskName" maxlength="30" autocomplete="off" disabled
+					placeholder="大項目を入れてから入力" data-task-add-name>
+			</label>
+			<button type="submit" class="btn btn-primary">追加</button>
+		</form>
 
-			<ul class="task-edit-list">
+		<form id="task-save-form" th:action="@{/manager/tasks/save}" method="post" data-dirty-guard>
+			<button type="submit" class="btn btn-primary task-save-btn">保存</button>
+		</form>
+
+		<section class="task-sec" th:each="g : ${taskGroups}">
+			<div class="task-sec-head">
+				<input type="text" class="task-sec-name" th:name="|g_${g.key.id}|" th:value="${g.key.name}" maxlength="30"
+					aria-label="大項目名" form="task-save-form">
+			</div>
+			<ul class="task-list">
 				<li th:each="t : ${g.value}">
-					<form class="task-edit-row" th:action="@{/manager/tasks/{id}/rename(id=${t.id})}" method="post">
-						<input type="text" name="name" th:value="${t.name}" maxlength="30" required aria-label="作業名">
-						<span class="task-edit-count" th:text="|${userCounts[t.id]}人|"></span>
-						<button type="submit" class="btn btn-small">名称変更</button>
-					</form>
-					<form class="task-edit-delete" th:action="@{/manager/tasks/{id}/delete(id=${t.id})}" method="post"
-						th:data-confirm="|作業「${t.name}」を削除します。できる人（${userCounts[t.id]}人）の可能作業からも外れます。よろしいですか？|">
-						<button type="submit" class="btn btn-small btn-danger">削除</button>
-					</form>
+					<input type="text" th:name="|t_${t.id}|" th:value="${t.name}" maxlength="30" aria-label="作業名" form="task-save-form">
+					<span class="task-count" th:text="|${userCounts[t.id]}人|"></span>
 				</li>
 				<li th:if="${#lists.isEmpty(g.value)}" class="empty">作業がありません</li>
 			</ul>
-
-			<form class="task-edit-row task-edit-add" th:action="@{/manager/tasks/groups/{id}/tasks(id=${g.key.id})}" method="post">
-				<input type="text" name="name" maxlength="30" required placeholder="作業名を追加" aria-label="追加する作業名">
-				<button type="submit" class="btn btn-small btn-primary">＋ 作業を追加</button>
-			</form>
 		</section>
-		<p class="empty" th:if="${#maps.isEmpty(taskGroups)}">大項目がありません。下から追加してください。</p>
-
-		<form class="card task-edit-row task-edit-add" th:action="@{/manager/tasks/groups}" method="post">
-			<input type="text" name="name" maxlength="30" required placeholder="新しい大項目名（例：作業、トラック積）" aria-label="追加する大項目名">
-			<button type="submit" class="btn btn-primary">＋ 大項目を追加</button>
-		</form>
+		<p class="empty" th:if="${#maps.isEmpty(taskGroups)}">大項目がありません。上から追加してください。</p>
 	</main>
+	<script>
+		(() => {
+			const group = document.querySelector("[data-task-add-group]");
+			const task = document.querySelector("[data-task-add-name]");
+			const sync = () => { task.disabled = group.value.trim() === ""; };
+			group.addEventListener("input", sync);
+			sync();
+			const save = document.getElementById("task-save-form");
+			save.addEventListener("submit", (event) => {
+				const blank = Array.from(document.querySelectorAll("input[form=task-save-form]")).some((i) => i.value.trim() === "");
+				if (blank && !window.confirm("空欄の項目を削除します。大項目を空にすると、その下の作業もすべて削除されます。ユーザーの可能作業からも外れます。よろしいですか？")) {
+					event.preventDefault();
+					event.stopImmediatePropagation();
+				}
+			}, { capture: true });
+		})();
+	</script>
 </body>
 </html>

@@ -4,6 +4,7 @@
 // =========================================================
 import { initConfirm } from './modules/confirm';
 import { initDirtyGuard } from './modules/dirty-guard';
+import { initHintFold } from './modules/hint-fold';
 import { initPaidLeave } from './modules/paid-leave';
 import { initShiftLock } from './modules/shift-lock';
 import { initSideNav } from './modules/side-nav';
@@ -18,6 +19,7 @@ function init(): void {
 	initWorkerTotal();
 	initPaidLeave();
 	initShiftLock();
+	initHintFold();
 }
 
 if (document.readyState === 'loading') {

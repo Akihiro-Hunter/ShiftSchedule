@@ -260,6 +260,23 @@
     });
   }
 
+  // frontend/ts/modules/hint-fold.ts
+  function initHintFold() {
+    document.querySelectorAll("details[data-hint-fold]").forEach((details) => {
+      const key = `hintFold:${details.dataset.hintFold}`;
+      try {
+        if (localStorage.getItem(key) === "0") details.open = false;
+      } catch {
+      }
+      details.addEventListener("toggle", () => {
+        try {
+          localStorage.setItem(key, details.open ? "1" : "0");
+        } catch {
+        }
+      });
+    });
+  }
+
   // frontend/ts/main.ts
   function init() {
     initConfirm();
@@ -269,6 +286,7 @@
     initWorkerTotal();
     initPaidLeave();
     initShiftLock();
+    initHintFold();
   }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);

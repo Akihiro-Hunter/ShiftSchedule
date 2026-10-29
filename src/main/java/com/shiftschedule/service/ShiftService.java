@@ -110,7 +110,8 @@ public class ShiftService {
 			rows.add(new ShiftSheet.Row(user.getId(), user.getUserNumber(), user.getName(), user.getTasksLabel(), cells,
 					note == null ? null : note.getNote(), note == null ? null : note.getUpdatedAt(),
 					lockedIds.contains(user.getId()), carryIns.getOrDefault(user.getId(), 0),
-						timeLabel(user.getStartTime()), timeLabel(user.getEndTime())));
+						timeLabel(user.getStartTime()), timeLabel(user.getEndTime()),
+						user.getContractDays() == null ? 5 : user.getContractDays()));
 		}
 
 		Map<LocalDate, Integer> planMap = new HashMap<>();

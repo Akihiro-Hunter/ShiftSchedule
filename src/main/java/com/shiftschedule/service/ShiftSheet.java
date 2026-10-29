@@ -84,17 +84,18 @@ public record ShiftSheet(Period period, List<LocalDate> dates, List<Row> rows, L
 	 * @param requestNote 次回勤務表作成の備考
 	 * @param requestUpdatedAt 次回勤務表作成を最後に保存した日時（未保存なら null）
 	 * @param editLocked 管理者が鍵をかけた（この人の勤怠は変更しない）
+	 * @param contractDays 契約勤務日数（週あたり）
 	 * @param carryIn 表の先頭の日の直前から続いている出勤日数（前の期にまたがる連勤の判定用）
 	 */
 	public record Row(Long accountId, String userNumber, String name, String tasksLabel, List<Cell> cells,
 			String requestNote, LocalDateTime requestUpdatedAt, boolean editLocked, int carryIn, String startTime,
-			String endTime) {
+			String endTime, int contractDays) {
 
 		/** 勤務時間は朝アシの既定（5:00〜8:00） */
 		public Row(Long accountId, String userNumber, String name, String tasksLabel, List<Cell> cells,
 				String requestNote, LocalDateTime requestUpdatedAt, boolean editLocked, int carryIn) {
 			this(accountId, userNumber, name, tasksLabel, cells, requestNote, requestUpdatedAt, editLocked, carryIn,
-					"5:00", "8:00");
+					"5:00", "8:00", 5);
 		}
 
 		/** 各日が属する連勤の長さ（休みの日は 0）。半月の区切りに関係なく通して数える */
@@ -115,7 +116,7 @@ public record ShiftSheet(Period period, List<LocalDate> dates, List<Row> rows, L
 		/** 指定した位置の日だけに絞った行（ユーザー向け。連勤の判定には使わない） */
 		Row only(List<Integer> indexes) {
 			return new Row(accountId, userNumber, name, tasksLabel, indexes.stream().map(cells::get).toList(),
-					requestNote, requestUpdatedAt, editLocked, 0, startTime, endTime);
+					requestNote, requestUpdatedAt, editLocked, 0, startTime, endTime, contractDays);
 		}
 
 		/** 出勤回数（上段が「公」でない日数） */

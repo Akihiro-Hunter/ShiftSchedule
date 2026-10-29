@@ -52,6 +52,11 @@ $row-divider: 2px solid c(border-strong);
 	.user & {
 		max-height: none;
 	}
+
+	// 使い方を畳んだ分、表を縦に広げる
+	.container:has(.hint-fold:not([open])) & {
+		max-height: calc(100vh - 160px);
+	}
 }
 
 .sheet {
@@ -154,6 +159,19 @@ $row-divider: 2px solid c(border-strong);
 }
 
 // 氏名にマウスを乗せると可能作業を表示（右横に吹き出し）
+.contract-days {
+	display: inline-block;
+	margin-left: 4px;
+	padding: 0 6px;
+	border-radius: 8px;
+	background: c(primary);
+	color: #fff;
+	font-size: 11px;
+	font-weight: 700;
+	line-height: 16px;
+	vertical-align: middle;
+}
+
 .name-with-tasks {
 	position: relative;
 	cursor: help;

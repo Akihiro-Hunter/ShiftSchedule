@@ -2,7 +2,7 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('可能作業')}"></head>
 <body class="user">
-	<header th:replace="~{fragments/layout :: header('可能作業', 'user')}"></header>
+	<header th:replace="~{fragments/layout :: userHeader('可能作業', 'user')}"></header>
 	<main class="container">
 		<a th:replace="~{fragments/layout :: back('user')}"></a>
 		<div th:replace="~{fragments/layout :: messages}"></div>

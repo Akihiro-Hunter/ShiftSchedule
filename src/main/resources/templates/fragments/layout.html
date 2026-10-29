@@ -19,8 +19,9 @@
 <body>
 
 	<!-- ヘッダー：左に画面名、右にユーザー名とログアウトボタン -->
-	<header th:fragment="header(title, area)" class="app-header">
-		<h1 class="app-title" th:text="${title}">画面名</h1>
+	<header th:fragment="userHeader(title, area)" class="app-header">
+		<a class="app-brand" th:href="@{'/' + ${area} + '/shift'}">シフトチョーセー(仮)</a>
+		<h1 class="app-title app-title-sub" th:text="${title}">画面名</h1>
 		<div class="app-user">
 			<span class="app-user-name" th:text="${loginName}">氏名</span>
 			<form th:action="@{'/' + ${area} + '/logout'}" method="post">

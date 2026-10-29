@@ -2,7 +2,7 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('個人情報設定')}"></head>
 <body class="user">
-	<header th:replace="~{fragments/layout :: header('個人情報設定', 'user')}"></header>
+	<header th:replace="~{fragments/layout :: userHeader('個人情報設定', 'user')}"></header>
 	<main class="container">
 		<a th:replace="~{fragments/layout :: back('user')}"></a>
 		<div th:replace="~{fragments/layout :: messages}"></div>

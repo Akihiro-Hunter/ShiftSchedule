@@ -92,6 +92,14 @@ small {
   }
 }
 
+.app-title-sub {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
 .app-user {
   display: flex;
   align-items: center;

@@ -2,7 +2,7 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('メニュー')}"></head>
 <body class="user">
-	<header th:replace="~{fragments/layout :: header('メニュー', 'user')}"></header>
+	<header th:replace="~{fragments/layout :: userHeader('メニュー', 'user')}"></header>
 	<main class="container">
 		<nav class="menu">
 			<a class="menu-item" th:href="@{/user/shift}">

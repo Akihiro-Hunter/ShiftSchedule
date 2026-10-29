@@ -46,7 +46,7 @@
 }
 
 // ---------- 管理者画面：ヘッダーのメニューと、左の開閉ナビゲーション ----------
-$header-height: 52px;
+$header-height: 56px;
 $side-width: 220px;
 $tab-width: 18px;
 // 開閉の速さ。メニュー枠・栞・本文を同じ時間で動かす
@@ -71,7 +71,7 @@ $side-duration: 0.8s;
 
 	> .app-header {
 		grid-column: 1 / -1;
-		min-height: $header-height;
+		height: $header-height;
 	}
 
 	> main {
@@ -126,9 +126,10 @@ $tab-height: 56px;
 .app-side {
 	position: sticky;
 	top: $header-height;
-	align-self: stretch;
+	// 本文の高さに伸ばさず、画面の高さに固定する（伸ばすと sticky が効かず、スクロールで流れてしまう）
+	align-self: start;
 	width: $side-width;
-	min-height: calc(100vh - #{$header-height});
+	height: calc(100vh - #{$header-height});
 
 	// 閉じている間は、枠の幅が本文に重なっても栞以外は操作を邪魔しない
 	.side-collapsed & {

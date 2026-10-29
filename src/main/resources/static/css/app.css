@@ -129,7 +129,7 @@ small {
 }
 .manager > .app-header {
   grid-column: 1/-1;
-  min-height: 52px;
+  height: 56px;
 }
 .manager > main {
   width: 100%;
@@ -173,10 +173,10 @@ small {
 
 .app-side {
   position: sticky;
-  top: 52px;
-  align-self: stretch;
+  top: 56px;
+  align-self: start;
   width: 220px;
-  min-height: calc(100vh - 52px);
+  height: calc(100vh - 56px);
 }
 .side-collapsed .app-side {
   pointer-events: none;
@@ -611,31 +611,6 @@ textarea:focus {
 .table th {
   background: var(--surface-alt);
   font-size: 13px;
-}
-/* ソートで列幅が変わらないよう固定する */
-.table-fixed {
-  table-layout: fixed;
-}
-.table-fixed th,
-.table-fixed td {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.table-fixed td.wrap {
-  white-space: normal;
-  overflow: visible;
-}
-.table th a.sort {
-  color: inherit;
-  text-decoration: none;
-}
-.table th a.sort:hover {
-  text-decoration: underline;
-}
-.table th .sort-mark {
-  font-size: 11px;
-  margin-left: 4px;
-  color: var(--primary, #2563eb);
 }
 .table tbody tr:last-child td {
   border-bottom: none;
@@ -1262,74 +1237,56 @@ textarea:focus {
   }
 }
 
-.task-add {
-  display: flex;
-  flex-wrap: wrap;
+.task-edit {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 12px;
   align-items: center;
-  gap: 12px 24px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
-.task-add label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.task-add input[type=text] {
-  width: 240px;
+.task-edit > .task-edit-list,
+.task-edit > .task-edit-add {
+  grid-column: 1/-1;
 }
 
-.task-sec {
-  padding: 16px 0 20px;
-  border-bottom: 1px dotted var(--border-strong);
-}
-.task-sec-head {
+.task-edit-row {
   display: flex;
+  gap: 8px;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
 }
-.task-sec-head .task-sec-name {
-  width: 100%;
-  max-width: 560px;
+.task-edit-row input[type=text] {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-edit-group input[type=text] {
   font-weight: bold;
-  font-size: 1.4em;
 }
-.task-list {
+
+.task-edit-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 32px;
-}
-.task-list > li {
-  display: flex;
+  grid-template-columns: 1fr auto;
+  gap: 8px 12px;
   align-items: center;
-  gap: 8px;
 }
-.task-list > li.empty {
+.task-edit-list > li {
+  display: contents;
+}
+.task-edit-list > li.empty {
+  display: block;
   grid-column: 1/-1;
 }
-.task-list input[type=text] {
-  flex: 1;
-  min-width: 0;
-}
-.task-count {
-  width: 3.5em;
-  text-align: right;
+
+.task-edit-count {
+  color: #666;
+  font-size: 0.85em;
   white-space: nowrap;
 }
 
-.task-save-btn {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  z-index: 50;
-  padding: 12px 28px;
-  font-size: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.container:has(.task-save-btn) {
-  padding-bottom: 96px;
+.task-edit-add {
+  border-top: 1px dashed #ccc;
+  padding-top: 12px;
 }

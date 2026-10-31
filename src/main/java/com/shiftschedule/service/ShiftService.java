@@ -322,7 +322,8 @@ public class ShiftService {
 	}
 
 	/** アルバイト・パートを朝アシシフトの並び順で（未設定の人はユーザー番号順で末尾） */
-	private List<Account> staffInOrder() {
+	@Transactional(readOnly = true)
+	public List<Account> staffInOrder() {
 		List<Account> staff = new ArrayList<>(accounts.findByRoleIn(Role.STAFF));
 		staff.sort(Comparator.comparing(Account::getSortOrder, Comparator.nullsLast(Comparator.naturalOrder()))
 				.thenComparing(Account::getUserNumber));

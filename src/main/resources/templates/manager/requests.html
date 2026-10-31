@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('休み希望登録')}"></head>
+<body class="manager">
+	<header th:replace="~{fragments/layout :: managerHeader('requests')}"></header>
+	<aside th:replace="~{fragments/layout :: managerSide('requests')}"></aside>
+	<main class="container container-wide">
+		<div class="toolbar">
+			<div class="period-nav">
+				<a class="btn btn-small" th:href="@{/manager/requests(start=${period.previous().start()})}">← 前期</a>
+				<span class="period-label">
+					<span th:text="${period.label()}"></span>
+					<span class="badge" th:if="${period == currentPeriod}">今期</span>
+					<span class="badge" th:if="${period == currentPeriod.next()}">来期</span>
+				</span>
+				<a class="btn btn-small" th:href="@{/manager/requests(start=${period.next().start()})}">次期 →</a>
+			</div>
+		</div>
+		<div th:replace="~{fragments/layout :: messages}"></div>
+
+		<details class="hint-fold" data-hint-fold="requests" open>
+			<summary>使い方（クリックで表示／非表示）</summary>
+			<p class="hint">口頭などで聞いた休み希望を、ユーザーの代わりに登録します。マスをクリックすると「希」（休み希望）と空白が切り替わります。保存すると、ユーザー本人の休み希望と同じ扱いで勤務表に「希」と表示されます（勤務表では変更できません）。<br>
+				休み希望を空白に戻すと、その日は「出勤可能」になります。ユーザー本人が入力した「出勤可能」「未定」の日は、休み希望にしない限り変わりません。</p>
+		</details>
+
+		<form th:action="@{/manager/requests}" method="post" data-dirty-guard>
+			<input type="hidden" name="start" th:value="${period.start()}">
+
+			<div class="sheet-wrap">
+				<table class="sheet">
+					<thead>
+						<tr>
+							<th class="sheet-name">氏名</th>
+							<th th:each="d : ${period.dates()}" class="sheet-date"
+								th:classappend="${@dateLabels.weekClass(d)} + (${d == secondStart} ? ' half-start' : '')">
+								<span th:text="${d.dayOfMonth}"></span><br><small th:text="${@dateLabels.week(d)}"></small>
+							</th>
+							<th class="sheet-count">休み<br>希望数</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="user : ${staff}" th:with="userOff=${offDays.getOrDefault(user.id, T(java.util.Set).of())}">
+							<th class="sheet-name">
+								<span th:text="${user.name}"></span><br>
+								<small th:text="${user.userNumber}"></small>
+							</th>
+							<td th:each="d : ${period.dates()}"
+								th:classappend="${d == secondStart} ? 'half-start'">
+								<label class="off-toggle">
+									<input type="checkbox" th:name="'off_' + ${user.id} + '_' + ${d}"
+										th:checked="${userOff.contains(d)}">
+									<span>希</span>
+								</label>
+							</td>
+							<td class="sheet-count" th:text="${userOff.size()}"></td>
+						</tr>
+						<tr th:if="${#lists.isEmpty(staff)}">
+							<td th:colspan="${period.dates().size() + 2}" class="empty">アルバイト・パートのユーザーが登録されていません</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="form-actions">
+				<button type="submit" class="btn btn-primary">保存</button>
+			</div>
+		</form>
+	</main>
+</body>
+</html>

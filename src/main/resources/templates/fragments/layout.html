@@ -35,6 +35,7 @@
 		<a class="app-brand" th:href="@{/manager/shifts}">シフトチョーセー(仮)</a>
 		<nav class="app-nav" aria-label="メインメニュー">
 			<a th:href="@{/manager/shifts}" th:classappend="${active == 'shifts'} ? 'is-active'">勤務表</a>
+			<a th:href="@{/manager/requests}" th:classappend="${active == 'requests'} ? 'is-active'">休み希望</a>
 			<a th:href="@{/manager/users}" th:classappend="${active == 'users'} ? 'is-active'">ユーザー情報</a>
 			<a th:href="@{/manager/tasks}" th:classappend="${active == 'tasks'} ? 'is-active'">作業項目</a>
 			<a th:href="@{/manager/registrations}" th:classappend="${active == 'registrations'} ? 'is-active'">ユーザー登録</a>
@@ -55,6 +56,10 @@
 			<a th:href="@{/manager/shifts}" th:classappend="${active == 'shifts'} ? 'is-active'">
 				<span class="side-text">勤務表</span>
 				<span class="side-desc">シフトの作成・確定・CSV出力</span>
+			</a>
+			<a th:href="@{/manager/requests}" th:classappend="${active == 'requests'} ? 'is-active'">
+				<span class="side-text">休み希望</span>
+				<span class="side-desc">口頭で聞いた休み希望の代理登録</span>
 			</a>
 			<a th:href="@{/manager/users}" th:classappend="${active == 'users'} ? 'is-active'">
 				<span class="side-text">ユーザー情報</span>

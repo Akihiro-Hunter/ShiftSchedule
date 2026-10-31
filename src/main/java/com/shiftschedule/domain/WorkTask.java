@@ -2,6 +2,8 @@ package com.shiftschedule.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -37,6 +39,15 @@ public class WorkTask {
 	/** 大項目内の表示順（小さいほど先） */
 	@Column(nullable = false)
 	private int sortOrder;
+
+	/** 必要人数の種別（必須 / できれば） */
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false, length = 10, columnDefinition = "varchar(10) not null default 'REQUIRED'")
+	private RequirementKind requiredKind = RequirementKind.REQUIRED;
+
+	/** 毎日の必要人数（既定）。0 は指定なし */
+	@Column(nullable = false, columnDefinition = "integer not null default 0")
+	private int requiredCount;
 
 	/** 画面表示用 */
 	public String getLabel() {

@@ -64,10 +64,49 @@
 	}
 }
 
-.task-count {
-	width: 3.5em;
+.task-kind {
+	width: 6.5em;
+}
+
+.task-need {
+	width: 5em;
+}
+
+.task-unit {
+	white-space: nowrap;
+}
+
+// できる人数は通常は隠す。必要人数に足りない作業は、人数の欄を赤くして知らせる
+.task-able {
+	display: none;
+	width: 7em;
 	text-align: right;
 	white-space: nowrap;
+	color: c(muted);
+	font-size: 0.85em;
+}
+
+.show-able .task-able {
+	display: inline-block;
+}
+
+.task-list > li.is-short {
+	.task-need {
+		border-color: c(danger);
+		background: #fde8eb;
+	}
+
+	.task-able {
+		color: c(danger);
+		font-weight: bold;
+	}
+}
+
+.task-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 12px;
 }
 
 // 右下に常時表示する保存ボタン

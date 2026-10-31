@@ -8,6 +8,7 @@
 		<div th:replace="~{fragments/layout :: messages}"></div>
 
 		<p class="hint">
+			「必須」は足りない日に不足として報告する人数、「できれば」は足りなくても仕方ないが満たしていると良い人数です。必要人数は毎日の既定で、人数を「なし」にすると指定なしです。
 			名前を消して「保存」すると、その大項目・作業を削除します（大項目を消すと、下の作業もすべて削除されます）。
 			ここで登録した大項目・作業は、ユーザーの「可能作業」の選択肢になり、シフトを決める際にも参照されます
 			（例：リフトができる人を毎日1人以上など）。名前を変えても、できる人の設定は引き継がれます。
@@ -28,6 +29,10 @@
 			<button type="submit" class="btn btn-primary">追加</button>
 		</form>
 
+		<label class="task-toggle">
+			<input type="checkbox" data-task-toggle-able> 作業ができる人数を表示する
+		</label>
+
 		<form id="task-save-form" th:action="@{/manager/tasks/save}" method="post" data-dirty-guard>
 			<button type="submit" class="btn btn-primary task-save-btn">保存</button>
 		</form>
@@ -38,10 +43,19 @@
 					aria-label="大項目名" form="task-save-form">
 			</div>
 			<ul class="task-list">
-				<li th:each="t : ${g.value}">
+				<li th:each="t : ${g.value}" th:classappend="${userCounts[t.id] < t.requiredCount} ? 'is-short'"
+					th:title="${userCounts[t.id] < t.requiredCount} ? |できる人が${userCounts[t.id]}人しかいません（必要${t.requiredCount}人）|">
 					<input type="text" th:name="|t_${t.id}|" th:value="${t.name}" maxlength="30" aria-label="作業名" form="task-save-form">
-					<span class="task-count" th:text="|${userCounts[t.id]}人|"></span>
-				</li>
+					<select class="task-kind" th:name="|k_${t.id}|" aria-label="必要人数の種別" form="task-save-form">
+					<option th:each="k : ${kinds}" th:value="${k.name()}" th:text="${k.label}" th:selected="${k == t.requiredKind}"></option>
+					</select>
+					<select class="task-need" th:name="|n_${t.id}|" aria-label="必要人数" form="task-save-form">
+					<option th:each="n : ${#numbers.sequence(0, countMax)}" th:value="${n}" th:text="${n == 0 ? 'なし' : n}" th:selected="${n == t.requiredCount}"></option>
+					</select>
+					<span class="task-unit">人以上</span>
+					<span class="task-able"
+					th:text="|できる人 ${userCounts[t.id]}人|"></span>
+									</li>
 				<li th:if="${#lists.isEmpty(g.value)}" class="empty">作業がありません</li>
 			</ul>
 		</section>
@@ -54,6 +68,8 @@
 			const sync = () => { task.disabled = group.value.trim() === ""; };
 			group.addEventListener("input", sync);
 			sync();
+			const toggle = document.querySelector("[data-task-toggle-able]");
+			toggle.addEventListener("change", () => document.querySelector("main").classList.toggle("show-able", toggle.checked));
 			const save = document.getElementById("task-save-form");
 			save.addEventListener("submit", (event) => {
 				const blank = Array.from(document.querySelectorAll("input[form=task-save-form]")).some((i) => i.value.trim() === "");

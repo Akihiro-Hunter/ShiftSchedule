@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.shiftschedule.domain.RequirementKind;
 import com.shiftschedule.domain.TaskGroup;
 import com.shiftschedule.domain.WorkTask;
 import com.shiftschedule.repository.TaskGroupRepository;
@@ -22,6 +23,7 @@ import com.shiftschedule.repository.WorkTaskRepository;
 public class TaskService {
 
 	public static final int NAME_MAX = 30;
+	public static final int REQUIRED_MAX = 30;
 
 	private final TaskGroupRepository groups;
 	private final WorkTaskRepository tasks;
@@ -89,7 +91,8 @@ public class TaskService {
 	 * 空欄にされた大項目・作業は削除する（大項目を削除すると、その下の作業もすべて削除）。
 	 * 名前が不正・重複なら例外を投げ、全体を保存しない。
 	 */
-	public void saveNames(Map<Long, String> groupNames, Map<Long, String> taskNames) {
+	public void saveNames(Map<Long, String> groupNames, Map<Long, String> taskNames, Map<Long, String> kinds,
+			Map<Long, String> counts) {
 		groupNames.forEach((id, name) -> {
 			if (name == null || name.isBlank()) {
 				groups.findById(id).ifPresent(g -> deleteGroup(id));
@@ -116,6 +119,7 @@ public class TaskService {
 			if (raw != null) {
 				task.setName(normalize(raw, "作業名"));
 			}
+			applyRequirement(task, kinds.get(task.getId()), counts.get(task.getId()));
 			if (!seenTasks.add(task.getGroup().getId() + "/" + task.getName())) {
 				throw new IllegalArgumentException("「" + task.getGroup().getName() + "」に「" + task.getName() + "」が重複しています");
 			}
@@ -158,6 +162,29 @@ public class TaskService {
 	@Transactional(readOnly = true)
 	public Set<WorkTask> resolve(Collection<Long> ids) {
 		return Set.copyOf(findAllById(ids));
+	}
+
+	/** 必要人数の種別と人数を反映する（未指定の項目は変えない） */
+	private static void applyRequirement(WorkTask task, String kind, String count) {
+		if (kind != null && !kind.isBlank()) {
+			try {
+				task.setRequiredKind(RequirementKind.valueOf(kind));
+			} catch (IllegalArgumentException e) {
+				throw new IllegalArgumentException("必要人数の種別が正しくありません");
+			}
+		}
+		if (count != null && !count.isBlank()) {
+			int n;
+			try {
+				n = Integer.parseInt(count.strip());
+			} catch (NumberFormatException e) {
+				throw new IllegalArgumentException("必要人数は数字で指定してください");
+			}
+			if (n < 0 || n > REQUIRED_MAX) {
+				throw new IllegalArgumentException("必要人数は0〜" + REQUIRED_MAX + "人で指定してください");
+			}
+			task.setRequiredCount(n);
+		}
 	}
 
 	private static String normalize(String raw, String label) {

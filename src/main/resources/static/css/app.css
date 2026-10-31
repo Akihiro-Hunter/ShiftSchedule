@@ -474,7 +474,6 @@ input[type=text],
 input[type=password],
 input[type=number],
 input[type=date],
-input[type=time],
 select,
 textarea {
   width: 100%;
@@ -1330,10 +1329,45 @@ textarea:focus {
   min-width: 0;
 }
 
-.task-count {
-  width: 3.5em;
+.task-kind {
+  width: 6.5em;
+}
+
+.task-need {
+  width: 5em;
+}
+
+.task-unit {
+  white-space: nowrap;
+}
+
+.task-able {
+  display: none;
+  width: 7em;
   text-align: right;
   white-space: nowrap;
+  color: var(--muted);
+  font-size: 0.85em;
+}
+
+.show-able .task-able {
+  display: inline-block;
+}
+
+.task-list > li.is-short .task-need {
+  border-color: var(--danger);
+  background: #fde8eb;
+}
+.task-list > li.is-short .task-able {
+  color: var(--danger);
+  font-weight: bold;
+}
+
+.task-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
 }
 
 .task-save-btn {
@@ -1348,36 +1382,4 @@ textarea:focus {
 
 .container:has(.task-save-btn) {
   padding-bottom: 96px;
-}
-
-/* ユーザー登録フォーム：スクロールなしで入力できるよう詰める */
-.form-compact {
-  padding: 12px 16px;
-}
-.form-compact .form-row {
-  margin: 0 0 8px;
-}
-.form-compact .label-note {
-  margin-left: 6px;
-  font-weight: normal;
-  font-size: 12px;
-  color: var(--muted);
-}
-.form-compact .hint {
-  margin: 0;
-}
-.form-compact .form-actions-end {
-  grid-column: 1 / -1;
-  margin: 0 0 8px;
-  justify-content: flex-end;
-}
-
-/* 4列（番号・氏名・優先度・残有給など短い項目を1行に並べる） */
-.form-cols-4 {
-  grid-template-columns: repeat(4, 1fr);
-}
-@media (max-width: 600px) {
-  .form-cols-4 {
-    grid-template-columns: 1fr 1fr;
-  }
 }

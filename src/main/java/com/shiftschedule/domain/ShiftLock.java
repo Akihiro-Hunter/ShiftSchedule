@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 
 /** ユーザー勤務表管理で鍵をかけたユーザー（期間ごと）。鍵がかかっている間、その人の勤怠は変更しない */
 @Entity
-@Table(name = "shift_locks", uniqueConstraints = @UniqueConstraint(columnNames = { "account_id", "period_start" }))
+@Table(name = "t_lock", uniqueConstraints = @UniqueConstraint(columnNames = { "account_id", "period_start" }))
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShiftLock {

@@ -22,7 +22,7 @@ import lombok.ToString;
 
 /** 次回勤務表作成でユーザーが入力した、1日分の希望 */
 @Entity
-@Table(name = "shift_requests", uniqueConstraints = @UniqueConstraint(columnNames = { "account_id", "work_date" }))
+@Table(name = "t_request", uniqueConstraints = @UniqueConstraint(columnNames = { "account_id", "work_date" }))
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShiftRequest {

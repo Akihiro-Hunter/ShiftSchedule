@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 
 /** 日ごとの予定人数（ユーザー勤務表管理で変更したもの。未保存の日は既定値） */
 @Entity
-@Table(name = "daily_plans")
+@Table(name = "t_daily_plan")
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DailyPlan {

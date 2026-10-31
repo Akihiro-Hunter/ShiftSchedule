@@ -20,7 +20,7 @@ import lombok.Setter;
  * シフトを決める際に参照される（例：リフトができる人を毎日1人以上など）。
  */
 @Entity
-@Table(name = "work_tasks", uniqueConstraints = @UniqueConstraint(columnNames = { "group_id", "name" }))
+@Table(name = "m_work_task", uniqueConstraints = @UniqueConstraint(columnNames = { "group_id", "name" }))
 @Getter
 @Setter
 public class WorkTask {

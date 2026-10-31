@@ -21,7 +21,7 @@ import lombok.ToString;
 
 /** 次回勤務表作成の備考と最終保存日時（ユーザー・期間ごと） */
 @Entity
-@Table(name = "shift_request_notes", uniqueConstraints = @UniqueConstraint(columnNames = { "account_id", "period_start" }))
+@Table(name = "t_request_note", uniqueConstraints = @UniqueConstraint(columnNames = { "account_id", "period_start" }))
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShiftRequestNote {

@@ -23,7 +23,7 @@ import lombok.ToString;
  * 出勤・休みは ShiftEntry、どの作業かはこのデータが持つ。
  */
 @Entity
-@Table(name = "shift_assignments", uniqueConstraints = @UniqueConstraint(columnNames = { "account_id", "work_date", "task_id" }))
+@Table(name = "t_assignment", uniqueConstraints = @UniqueConstraint(columnNames = { "account_id", "work_date", "task_id" }))
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShiftAssignment {

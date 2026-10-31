@@ -91,7 +91,7 @@ public class InitialTaskRunner implements ApplicationRunner {
 			for (Map<String, Object> row : jdbc.queryForList("SELECT account_id, task FROM account_tasks")) {
 				WorkTask task = byLegacyName.get((String) row.get("task"));
 				if (task != null) {
-					jdbc.update("INSERT INTO account_work_tasks (account_id, task_id) VALUES (?, ?) ON CONFLICT DO NOTHING",
+					jdbc.update("INSERT INTO m_user_possible_work (account_id, task_id) VALUES (?, ?) ON CONFLICT DO NOTHING",
 							row.get("account_id"), task.getId());
 					migrated++;
 				}

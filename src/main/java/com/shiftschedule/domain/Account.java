@@ -29,7 +29,7 @@ import lombok.Data;
 
 /** 管理者・アルバイトのアカウントと個人情報 */
 @Entity
-@Table(name = "accounts")
+@Table(name = "m_user")
 @Data
 public class Account {
 
@@ -85,7 +85,7 @@ public class Account {
 
 	/** 可能作業 */
 	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "account_work_tasks", joinColumns = @JoinColumn(name = "account_id"),
+	@JoinTable(name = "m_user_possible_work", joinColumns = @JoinColumn(name = "account_id"),
 			inverseJoinColumns = @JoinColumn(name = "task_id"))
 	private Set<WorkTask> tasks = new HashSet<>();
 

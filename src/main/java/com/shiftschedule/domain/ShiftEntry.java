@@ -23,7 +23,7 @@ import lombok.ToString;
  * ユーザーが「休み」にした日は「公／希」で固定されるため、このデータは使わない。
  */
 @Entity
-@Table(name = "shift_entries", uniqueConstraints = @UniqueConstraint(columnNames = { "account_id", "work_date" }))
+@Table(name = "t_entry", uniqueConstraints = @UniqueConstraint(columnNames = { "account_id", "work_date" }))
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShiftEntry {

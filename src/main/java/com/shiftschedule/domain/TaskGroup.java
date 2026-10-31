@@ -11,7 +11,7 @@ import lombok.Setter;
 
 /** 可能作業の大項目（例：作業、トラック積）。管理者が編集する */
 @Entity
-@Table(name = "task_groups")
+@Table(name = "m_task_group")
 @Getter
 @Setter
 public class TaskGroup {

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 
 /** 期間ごとの朝アシシフトの確定状態 */
 @Entity
-@Table(name = "shift_periods")
+@Table(name = "t_period")
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShiftPeriod {

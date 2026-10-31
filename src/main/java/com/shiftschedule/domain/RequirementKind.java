@@ -5,8 +5,8 @@ public enum RequirementKind {
 
 	/** 必須（足りない日は「不足」として報告する） */
 	REQUIRED("必須"),
-	/** できれば（足りなくても仕方ないが、満たしていると良い） */
-	PREFERRED("できれば");
+	/** 推奨（足りなくても仕方ないが、満たしていると良い） */
+	PREFERRED("推奨");
 
 	private final String label;
 

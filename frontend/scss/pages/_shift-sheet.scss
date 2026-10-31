@@ -463,3 +463,58 @@ $row-divider: 2px solid c(border-strong);
 .sheet .half-start {
 	border-left: 3px solid c(muted);
 }
+
+// 自動作成した作業の割り当てと、必要人数に対する不足（勤務表の下）
+.assign-view {
+	margin-top: 24px;
+
+	> summary {
+		cursor: pointer;
+		font-weight: 700;
+		margin-bottom: 8px;
+	}
+
+	.sheet-wrap {
+		margin-bottom: 16px;
+		max-height: none;
+	}
+}
+
+.assign-table {
+	border-collapse: collapse;
+	font-size: 13px;
+
+	th,
+	td {
+		border: 1px solid c(border);
+		padding: 4px 6px;
+		text-align: center;
+		white-space: nowrap;
+	}
+
+	th {
+		background: c(surface-alt);
+	}
+
+	.assign-name {
+		text-align: left;
+		position: sticky;
+		left: 0;
+		background: c(surface-alt);
+	}
+
+	td.is-short {
+		background: c(error-bg);
+		color: c(danger);
+		font-weight: 700;
+	}
+
+	td.is-short-soft {
+		background: c(warn-bg);
+	}
+}
+
+.assign-who td {
+	font-size: 12px;
+	min-width: 6.5em;
+}

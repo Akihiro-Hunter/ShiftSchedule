@@ -61,6 +61,13 @@
 			<version>3.0.8</version>
 		</dependency>
 
+		<!-- 勤務表の自動作成（制約を満たす割り当てを探す CP-SAT ソルバー） -->
+		<dependency>
+			<groupId>com.google.ortools</groupId>
+			<artifactId>ortools-java</artifactId>
+			<version>9.15.6755</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>

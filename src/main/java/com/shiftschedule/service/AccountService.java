@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.shiftschedule.domain.Account;
 import com.shiftschedule.domain.WorkTask;
 import com.shiftschedule.repository.AccountRepository;
+import com.shiftschedule.repository.ShiftAssignmentRepository;
 import com.shiftschedule.repository.ShiftEntryRepository;
 import com.shiftschedule.repository.ShiftLockRepository;
 import com.shiftschedule.repository.ShiftRequestNoteRepository;
@@ -25,16 +26,18 @@ public class AccountService {
 	private final ShiftRequestNoteRepository requestNotes;
 	private final ShiftEntryRepository entries;
 	private final ShiftLockRepository locks;
+	private final ShiftAssignmentRepository assignments;
 	private final PasswordEncoder encoder;
 
 	public AccountService(AccountRepository accounts, ShiftRequestRepository requests,
 			ShiftRequestNoteRepository requestNotes, ShiftEntryRepository entries, ShiftLockRepository locks,
-			PasswordEncoder encoder) {
+			ShiftAssignmentRepository assignments, PasswordEncoder encoder) {
 		this.accounts = accounts;
 		this.requests = requests;
 		this.requestNotes = requestNotes;
 		this.entries = entries;
 		this.locks = locks;
+		this.assignments = assignments;
 		this.encoder = encoder;
 	}
 
@@ -74,6 +77,7 @@ public class AccountService {
 		requestNotes.deleteByAccount_Id(id);
 		entries.deleteByAccount_Id(id);
 		locks.deleteByAccount_Id(id);
+		assignments.deleteByAccount_Id(id);
 		accounts.deleteById(id);
 	}
 

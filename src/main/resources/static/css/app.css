@@ -1115,6 +1115,53 @@ textarea:focus {
   border-left: 3px solid var(--muted);
 }
 
+.assign-view {
+  margin-top: 24px;
+}
+.assign-view > summary {
+  cursor: pointer;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.assign-view .sheet-wrap {
+  margin-bottom: 16px;
+  max-height: none;
+}
+
+.assign-table {
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.assign-table th,
+.assign-table td {
+  border: 1px solid var(--border);
+  padding: 4px 6px;
+  text-align: center;
+  white-space: nowrap;
+}
+.assign-table th {
+  background: var(--surface-alt);
+}
+.assign-table .assign-name {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  background: var(--surface-alt);
+}
+.assign-table td.is-short {
+  background: var(--error-bg);
+  color: var(--danger);
+  font-weight: 700;
+}
+.assign-table td.is-short-soft {
+  background: var(--warn-bg);
+}
+
+.assign-who td {
+  font-size: 12px;
+  min-width: 6.5em;
+}
+
 .my-calendar {
   width: 100%;
   table-layout: fixed;

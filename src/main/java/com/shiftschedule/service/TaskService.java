@@ -131,6 +131,7 @@ public class TaskService {
 		TaskGroup group = groups.findById(id).orElseThrow();
 		for (WorkTask task : tasks.findByGroup(group)) {
 			tasks.detachFromAccounts(task.getId());
+			tasks.deleteAssignments(task.getId());
 			tasks.deleteById(task.getId());
 		}
 		groups.delete(group);
@@ -154,6 +155,7 @@ public class TaskService {
 	public String deleteTask(Long id) {
 		WorkTask task = tasks.findById(id).orElseThrow();
 		tasks.detachFromAccounts(id);
+		tasks.deleteAssignments(id);
 		tasks.deleteById(id);
 		return task.getName();
 	}

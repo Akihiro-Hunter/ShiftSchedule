@@ -169,6 +169,8 @@
 			</div>
 
 			<div class="form-actions">
+				<button type="submit" name="action" value="generate" class="btn"
+					data-confirm="鍵のかかっていない人の、確定前の半月の「公」と作業の割り当てを、条件に沿って作り直します（手で入れた「公」も置き換わります。休み希望・年休・確定済みの半月は変わりません）。10〜20秒ほどかかることがあります。よろしいですか？">勤務表を自動作成</button>
 				<button type="submit" name="action" value="save" class="btn"
 					th:classappend="${sheet.anyConfirmed()} ? 'btn-primary'">保存</button>
 				<th:block th:each="half : ${halves}">
@@ -183,6 +185,45 @@
 				</th:block>
 			</div>
 		</form>
+
+		<details class="assign-view" th:unless="${assignmentView.empty}">
+			<summary>作業の割り当てと不足（自動作成の結果）</summary>
+			<p class="hint">「必要人数」を設定した作業について、日ごとの割り当て人数を表示します。必要人数に足りない日は赤く表示します（休みの日の割り当ては数えません）。</p>
+			<div class="sheet-wrap">
+				<table class="assign-table">
+					<thead>
+						<tr>
+							<th class="assign-name">作業（必要人数）</th>
+							<th th:each="d : ${assignmentView.dates}" th:text="${d.dayOfMonth}"></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="row : ${assignmentView.coverage}">
+							<th class="assign-name"
+								th:text="|${row.groupName()}：${row.taskName()}（${row.kindLabel()} ${row.need()}人）|"></th>
+							<td th:each="n, s : ${row.counts()}" th:text="${n}"
+								th:classappend="${row.isShort(s.index)} ? (${row.required()} ? 'is-short' : 'is-short-soft')"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="sheet-wrap">
+				<table class="assign-table assign-who">
+					<thead>
+						<tr>
+							<th class="assign-name">氏名</th>
+							<th th:each="d : ${assignmentView.dates}" th:text="${d.dayOfMonth}"></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="row : ${assignmentView.staff}">
+							<th class="assign-name" th:text="${row.name()}"></th>
+							<td th:each="c : ${row.cells()}" th:text="${c}"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</details>
 	</main>
 </body>
 </html>

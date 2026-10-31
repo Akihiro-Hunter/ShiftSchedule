@@ -24,6 +24,7 @@ import com.shiftschedule.domain.RequestStatus;
 import com.shiftschedule.domain.ShiftEntry;
 import com.shiftschedule.service.ConsecutiveWork;
 import com.shiftschedule.service.ShiftCsvWriter;
+import com.shiftschedule.service.ShiftGenerateService;
 import com.shiftschedule.service.ShiftService;
 import com.shiftschedule.service.ShiftSheet;
 
@@ -36,17 +37,22 @@ public class ManagerShiftController {
 
 	private final ShiftService shiftService;
 	private final ShiftCsvWriter csvWriter;
+	private final ShiftGenerateService generateService;
 
-	public ManagerShiftController(ShiftService shiftService, ShiftCsvWriter csvWriter) {
+	public ManagerShiftController(ShiftService shiftService, ShiftCsvWriter csvWriter,
+			ShiftGenerateService generateService) {
 		this.shiftService = shiftService;
 		this.csvWriter = csvWriter;
+		this.generateService = generateService;
 	}
 
 	/** start を省略した場合は来期を表示 */
 	@GetMapping
 	public String show(@RequestParam(required = false) String start, Model model) {
 		Period period = Period.parseOrUpcoming(start);
-		model.addAttribute("sheet", shiftService.buildSheet(period));
+		ShiftSheet sheet = shiftService.buildSheet(period);
+		model.addAttribute("sheet", sheet);
+		model.addAttribute("assignmentView", generateService.buildView(period, sheet));
 		model.addAttribute("period", period);
 		model.addAttribute("currentPeriod", Period.current());
 		model.addAttribute("halves", Half.values());
@@ -71,6 +77,11 @@ public class ManagerShiftController {
 		}
 		shiftService.savePlans(period, params);
 		shiftService.saveEntries(period, params);
+		if (action.equals("generate")) {
+			// 鍵の状態を先に保存し、鍵のかかった人を作り直さないようにする
+			shiftService.saveLocks(period, params);
+			return generate(period, redirect);
+		}
 		// action は "save"、または "confirm-FIRST" / "unconfirm-SECOND" のように半月を指定する
 		String[] parts = action.split("-", 2);
 		Half half = parts.length == 2 ? parseHalf(parts[1]) : null;
@@ -91,6 +102,36 @@ public class ManagerShiftController {
 		}
 		// 鍵の状態は勤怠の保存の後に反映する（鍵をかける直前までの入力は保存する）
 		shiftService.saveLocks(period, params);
+		redirect.addAttribute("start", period.start().toString());
+		return "redirect:/manager/shifts";
+	}
+
+	/** 条件に沿って勤務表を作り直し、足りない作業があれば知らせる（確定は止めない） */
+	private String generate(Period period, RedirectAttributes redirect) {
+		try {
+			ShiftGenerateService.Outcome outcome = generateService.generate(period);
+			redirect.addFlashAttribute("message",
+					"勤務表を作成しました。内容を確認して、必要なら修正してから保存・確定してください");
+			List<String> warnings = new java.util.ArrayList<>();
+			if (outcome.isUnderstaffed()) {
+				warnings.add("契約日数の範囲では、予定人数に届きません（出勤できる延べ人数の目安 " + outcome.capacity() + "、予定人数の合計 "
+						+ outcome.planned() + "）。人手が足りない日は、募集や契約日数の見直しが必要です");
+			}
+			if (!outcome.optimal()) {
+				warnings.add("制限時間内に最良の案を探しきれませんでした（見つかった中で一番良い案を使っています）。もう一度作成すると改善することがあります");
+			}
+			List<String> shortages = generateService.buildView(period, shiftService.buildSheet(period)).shortages();
+			if (!shortages.isEmpty()) {
+				int shown = Math.min(shortages.size(), 5);
+				warnings.add("必須の作業が足りない日があります（" + shortages.size() + "件）："
+						+ String.join("、", shortages.subList(0, shown)) + (shortages.size() > shown ? " ほか" : ""));
+			}
+			if (!warnings.isEmpty()) {
+				redirect.addFlashAttribute("warning", String.join(" ／ ", warnings));
+			}
+		} catch (IllegalStateException e) {
+			redirect.addFlashAttribute("error", e.getMessage());
+		}
 		redirect.addAttribute("start", period.start().toString());
 		return "redirect:/manager/shifts";
 	}

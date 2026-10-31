@@ -40,7 +40,7 @@ public class WorkTask {
 	@Column(nullable = false)
 	private int sortOrder;
 
-	/** 必要人数の種別（必須 / できれば） */
+	/** 必要人数の種別（必須 / 推奨） */
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false, length = 10, columnDefinition = "varchar(10) not null default 'REQUIRED'")
 	private RequirementKind requiredKind = RequirementKind.REQUIRED;

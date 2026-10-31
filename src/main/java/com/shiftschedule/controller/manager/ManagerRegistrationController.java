@@ -45,7 +45,6 @@ public class ManagerRegistrationController {
 		Comparator<Account> comparator = switch (sort) {
 		case "name" -> Comparator.comparing(Account::getName);
 		case "role" -> Comparator.comparing(Account::getRole);
-		case "birthDate" -> Comparator.comparing(Account::getBirthDate, Comparator.nullsLast(Comparator.naturalOrder()));
 		case "hireDate" -> Comparator.comparing(Account::getHireDate, Comparator.nullsLast(Comparator.naturalOrder()));
 		case "contractDays" -> Comparator.comparing(Account::getContractDays);
 		case "time" -> Comparator.comparing(Account::getStartTime).thenComparing(Account::getEndTime);
@@ -115,9 +114,6 @@ public class ManagerRegistrationController {
 			result.rejectValue("password", "pattern", AccountRules.PASSWORD_MESSAGE);
 		}
 		if (form.getRole() != null && form.getRole().isStaff()) {
-			if (form.getBirthDate() == null) {
-				result.rejectValue("birthDate", "required", "生年月日を入力してください");
-			}
 			if (form.getHireDate() == null) {
 				result.rejectValue("hireDate", "required", "入社日を入力してください");
 			}

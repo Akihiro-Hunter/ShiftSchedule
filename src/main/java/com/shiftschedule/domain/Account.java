@@ -48,8 +48,6 @@ public class Account {
 	@Column(nullable = false, length = 50)
 	private String name;
 
-	private LocalDate birthDate;
-
 	private LocalDate hireDate;
 
 	/** 残年次有給休暇数（0.5日単位） */

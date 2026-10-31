@@ -32,9 +32,6 @@ public class AccountForm {
 	private String name;
 
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-	private LocalDate birthDate;
-
-	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
 	private LocalDate hireDate;
 
 	@NotNull(message = "契約勤務日数を選んでください")
@@ -61,7 +58,6 @@ public class AccountForm {
 		form.id = account.getId();
 		form.userNumber = account.getUserNumber();
 		form.name = account.getName();
-		form.birthDate = account.getBirthDate();
 		form.hireDate = account.getHireDate();
 		form.contractDays = account.getContractDays();
 		form.startTime = account.getStartTime();
@@ -73,7 +69,6 @@ public class AccountForm {
 	public void applyTo(Account account) {
 		account.setUserNumber(userNumber);
 		account.setName(name.strip());
-		account.setBirthDate(birthDate);
 		account.setHireDate(hireDate);
 		account.setContractDays(contractDays);
 		account.setStartTime(startTime);

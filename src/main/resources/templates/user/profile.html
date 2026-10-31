@@ -14,8 +14,6 @@
 				<dd th:text="${account.name}"></dd>
 				<dt>ユーザー番号</dt>
 				<dd th:text="${account.userNumber}"></dd>
-				<dt>生年月日</dt>
-				<dd th:text="${account.birthDate} ? ${#temporals.format(account.birthDate, 'yyyy年M月d日')} : '-'"></dd>
 				<dt>入社日</dt>
 				<dd th:text="${account.hireDate} ? ${#temporals.format(account.hireDate, 'yyyy年M月d日')} : '-'"></dd>
 				<dt>残年次有給休暇数</dt>

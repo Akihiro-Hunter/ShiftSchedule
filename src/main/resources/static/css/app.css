@@ -1367,7 +1367,7 @@ textarea:focus {
   margin: 0;
 }
 .form-compact .form-actions-end {
-  align-self: end;
+  grid-column: 1 / -1;
   margin: 0 0 8px;
   justify-content: flex-end;
 }
